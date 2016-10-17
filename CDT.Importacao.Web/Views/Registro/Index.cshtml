@@ -1,0 +1,18 @@
+﻿@using GridMvc.Html
+@using CDT.Importacao.Data.DAL.Classes
+
+
+<h2>Registros</h2>
+
+@Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
+
+@Html.Grid(new RegistroDAO().ListarTodos()).Columns(c =>
+{
+    c.Add(x => x.IdRegistro).Titled("ID");
+    c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout");
+    c.Add(x => x.NomeRegistro).Titled("Nome");
+    c.Add(x => x.ChaveRegistro).Titled("Chave");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("campos", "Cadastro","Campo", new { IdRegistro = d.IdRegistro },""));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdRegistro = d.IdRegistro }));
+}
+)

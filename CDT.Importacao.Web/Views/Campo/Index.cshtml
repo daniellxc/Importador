@@ -1,0 +1,18 @@
+﻿@using GridMvc.Html
+@using CDT.Importacao.Data.DAL.Classes
+
+
+
+<h2>Campos</h2>
+
+@Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
+
+@Html.Grid(new CampoDAO().ListarTodos()).Columns(c =>
+{
+    c.Add(x => x.IdCampo).Titled("ID");
+    c.Add(x => x.FK_Registro.NomeRegistro).Titled("Registro");
+    c.Add(x => x.NomeCampo).Titled("Campo");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => d.PosInicio.ToString().PadLeft(3, '0') + "-" + d.PosFim.ToString().PadLeft(3, '0')).Titled("Deslocamento");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdCampo = d.IdCampo }));
+}
+)

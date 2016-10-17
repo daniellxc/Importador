@@ -1,0 +1,41 @@
+﻿@model  CDT.Importacao.Data.Model.Layout
+@using System.Reflection
+@{
+    Assembly asm = Assembly.Load("CDT.Importacao.Data");
+    var classes = asm.GetTypes().Where(p =>
+   p.Namespace == "CDT.Importacao.Data.Business.Import" &&
+   p.Name.StartsWith("Importador")
+   ).ToList();
+    SelectList importadores = new SelectList(classes, "FullName", "Name");
+}
+
+<h2>Cadastrar Layout</h2>
+
+@using (Html.BeginForm("Salvar","Layout"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Nome do Layout")
+            @Html.TextBoxFor(x=>x.NomeLayout,new {@class="form-control" })
+            @Html.ValidationMessageFor(x=>x.NomeLayout) <br />
+
+            @Html.Label("Diretório Arquivo")
+            @Html.TextBoxFor(x => x.DiretorioArquivo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.DiretorioArquivo)<br />
+
+            @Html.Label("Importador")
+            @Html.DropDownListFor(x=>x.ClasseImportadora,importadores,"---",new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.DiretorioArquivo)<br />
+
+            @if (Model != null)
+            {
+                @Html.HiddenFor(x=>x.IdLayout);
+            }
+            
+        </div>
+        <a href="/Layout/Index" class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary"/>
+
+       
+    </fieldset>
+}

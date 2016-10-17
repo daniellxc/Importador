@@ -1,0 +1,40 @@
+﻿@model CDT.Importacao.Data.Model.Arquivo
+@{ 
+    SelectList layouts = new SelectList(new CDT.Importacao.Data.DAL.Classes.LayoutDAO().ListarTodos(),"IdLayout","NomeLayout");
+    
+}
+
+<h2>Registrar Arquivo para Importação</h2>
+
+@using (Html.BeginForm("Salvar", "Arquivo"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Layout")
+            @Html.DropDownListFor(x => x.IdLayout,layouts,"---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdLayout)
+
+            @Html.Label("Data de Registro")
+            @Html.TextBox("DataRegistro",DateTime.Now.ToString(), new { @class = "form-control calendario" })
+            @Html.ValidationMessageFor(x=>x.DataImportacao)
+
+
+            @Html.Label("Nome do Arquivo")
+            @Html.TextBoxFor(x=>x.NomeArquivo, new { @class = "form-control" } )
+
+
+            @if (Model != null)
+            {
+                
+                @Html.HiddenFor(x => x.IdArquivo);
+                @Html.HiddenFor(x => x.IdStatusArquivo);
+            }
+
+        </div>
+        <a href="/Arquivo/Index" class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}
+

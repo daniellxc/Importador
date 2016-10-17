@@ -1,0 +1,48 @@
+﻿@model CDT.Importacao.Data.Model.Campo
+@{
+    SelectList registros = new SelectList(new CDT.Importacao.Data.DAL.Classes.RegistroDAO().ListarTodos(), "IdRegistro", "NomeRegistro");
+    SelectList tiposDado = new SelectList(new CDT.Importacao.Data.DAL.Classes.TipoDadoDAO().ListarTodos(), "IdTipoDado", "NomeTipoDado");
+}
+
+<h2>Cadastro de Campo</h2>
+
+@using (Html.BeginForm("Salvar", "Campo"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Registro")
+            @Html.DropDownListFor(x => x.IdRegistro, registros, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdRegistro)
+
+            @Html.Label("Tipo")
+            @Html.DropDownListFor(x => x.IdTipoDado, tiposDado, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdTipoDado)
+
+
+            @Html.Label("Nome do Campo")
+            @Html.TextBoxFor(x => x.NomeCampo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.NomeCampo)<br />
+
+            @Html.Label("Posição Inicial")
+            @Html.EditorFor(x => x.PosInicio, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.PosInicio)
+
+            @Html.Label("Posição Final")
+            @Html.EditorFor(x => x.PosFim, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.PosFim)
+
+
+            @if (Model != null)
+            {
+
+                @Html.HiddenFor(x => x.IdCampo);
+            }
+
+        </div>
+        <a href="/Registro/Index" class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}
+

@@ -1,0 +1,42 @@
+﻿@model CDT.Importacao.Data.Model.Registro
+@{
+    SelectList layouts = new SelectList(new CDT.Importacao.Data.DAL.Classes.LayoutDAO().ListarTodos(), "IdLayout", "NomeLayout");
+    SelectList tiposRegistro = new SelectList(new CDT.Importacao.Data.DAL.Classes.TipoRegistroDAO().ListarTodos(), "IdTipoRegistro", "NomeTipoRegistro");
+ }
+
+<h2>Cadastro de Registro</h2>
+
+@using (Html.BeginForm("Salvar", "Registro"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Layout")
+            @Html.DropDownListFor(x => x.IdLayout, layouts, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdLayout)
+
+            @Html.Label("Tipo do Registro")
+            @Html.DropDownListFor(x => x.IdTipoRegistro, tiposRegistro, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdTipoRegistro)
+
+            @Html.Label("Chave")
+            @Html.TextBoxFor(x => x.ChaveRegistro, new { @class = "form-control" })
+
+
+            @Html.Label("Nome do Registro")
+            @Html.TextBoxFor(x => x.NomeRegistro, new { @class = "form-control" })
+
+
+            @if (Model != null)
+            {
+
+                @Html.HiddenFor(x => x.IdRegistro);
+            }
+
+        </div>
+        <a href="/Registro/Index" class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}
+
