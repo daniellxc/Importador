@@ -1,7 +1,7 @@
 ﻿@model CDT.Importacao.Data.Model.Arquivo
 @{ 
     SelectList layouts = new SelectList(new CDT.Importacao.Data.DAL.Classes.LayoutDAO().ListarTodos(),"IdLayout","NomeLayout");
-    
+    SelectList emissores = new SelectList(new CDT.Importacao.Data.DAL.Classes.EmissorDAO().ListarTodos(), "IdEmissor", "NomeEmissor");
 }
 
 <h2>Registrar Arquivo para Importação</h2>
@@ -14,6 +14,10 @@
             @Html.DropDownListFor(x => x.IdLayout,layouts,"---", new { @class = "form-control" })
             @Html.ValidationMessageFor(x => x.IdLayout)
 
+            @Html.Label("Emissor")
+            @Html.DropDownListFor(x => x.IdEmissor, emissores, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdEmissor)
+
             @Html.Label("Data de Registro")
             @Html.TextBox("DataRegistro",DateTime.Now.ToString(), new { @class = "form-control calendario" })
             @Html.ValidationMessageFor(x=>x.DataImportacao)
@@ -21,6 +25,8 @@
 
             @Html.Label("Nome do Arquivo")
             @Html.TextBoxFor(x=>x.NomeArquivo, new { @class = "form-control" } )
+
+
 
 
             @if (Model != null)

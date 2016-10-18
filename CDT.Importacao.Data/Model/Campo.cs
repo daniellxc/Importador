@@ -31,6 +31,9 @@ namespace CDT.Importacao.Data.Model
         [Column("posFim")]
         public int PosFim { get; set; }
 
+        [Column("flagRelevante")]
+        public bool FlagRelevante { get; set; }
+
         [ForeignKey("IdRegistro")]
         public virtual Registro FK_Registro { get; set; }
 

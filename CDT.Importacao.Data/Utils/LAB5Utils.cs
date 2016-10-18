@@ -55,6 +55,8 @@ namespace LAB5
                     return Encoding.UTF8.GetString(mso.ToArray());
                 }
             }
+
+
         }
 
         public  class ListUtils<T> where T:class
@@ -65,6 +67,20 @@ namespace LAB5
                 .GroupBy(x => x.Index / partitionSize)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
+            }
+        }
+
+
+        public class DataUtils
+        {
+            public static DateTime RetornaData(string data)
+            {
+                if (data.Length == 8)
+                {
+                    return DateTime.Parse(data);
+                }
+                else
+                    throw new Exception("Campo data em formato incorreto");
             }
         }
     }

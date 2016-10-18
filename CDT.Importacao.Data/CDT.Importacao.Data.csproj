@@ -56,8 +56,11 @@
     <Compile Include="DAL\AbstractCrudDao.cs" />
     <Compile Include="DAL\Classes\ArquivoDAO.cs" />
     <Compile Include="DAL\Classes\CampoDAO.cs" />
+    <Compile Include="DAL\Classes\EmissorDAO.cs" />
     <Compile Include="DAL\Classes\InformacaoDAO.cs" />
     <Compile Include="DAL\Classes\InformacaoRegistroDAO.cs" />
+    <Compile Include="Model\Emissor.cs" />
+    <Compile Include="Model\Emissores\TransacaoElo.cs" />
     <Compile Include="Model\InformacaoAux.cs" />
     <Compile Include="Model\InformacaoRegistro.cs" />
     <Compile Include="DAL\Classes\LayoutDAO.cs" />

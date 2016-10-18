@@ -36,13 +36,19 @@ namespace CDT.Importacao.Data.Model
         [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
         public DateTime DataRegistro { get; set; }
 
+        [Column("idEmissor")]
+        public int IdEmissor { get; set; }
 
-        
+
+
 
         [ForeignKey("IdLayout")]
         public virtual Layout FK_Layout { get; set; }
 
         [ForeignKey("IdStatusArquivo")]
         public virtual StatusArquivo FK_StatusArquivo{ get; set; }
+
+        [ForeignKey("IdEmissor")]
+        public virtual Emissor FK_Emissor { get; set; }
     }
 }

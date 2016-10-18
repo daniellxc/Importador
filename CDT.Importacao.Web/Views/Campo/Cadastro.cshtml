@@ -29,7 +29,11 @@
 
             @Html.Label("Posição Final")
             @Html.EditorFor(x => x.PosFim, new { @class = "form-control" })
-            @Html.ValidationMessageFor(x => x.PosFim)
+            @Html.ValidationMessageFor(x => x.PosFim)<br />
+
+            @Html.Label("Campo relevante")
+            @Html.EditorFor(x => x.FlagRelevante, new { @class = "form-control" })
+        
 
 
             @if (Model != null)

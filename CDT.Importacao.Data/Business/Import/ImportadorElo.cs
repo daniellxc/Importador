@@ -8,6 +8,7 @@ using System.IO;
 using CDT.Importacao.Data.Utils;
 using CDT.Importacao.Data.DAL.Classes;
 using LAB5;
+using CDT.Importacao.Data.Model.Emissores;
 
 namespace CDT.Importacao.Data.Business.Import
 {
@@ -72,6 +73,7 @@ namespace CDT.Importacao.Data.Business.Import
 
                 foreach(var chave in idTransacoes)
                 {
+                    TransacaoElo transElo = new TransacaoElo();
                     var transacoes = info.Where(i => i.Chave.Equals(chave));
 
                 }
@@ -93,7 +95,25 @@ namespace CDT.Importacao.Data.Business.Import
 
         #region Métodos Auxiliares
 
+        public void SepararCamposTransacao(out TransacaoElo transElo, List<InformacaoRegistro> informacoesRegistro)
+        {
+            transElo = new TransacaoElo();
+            List<Campo> campos = new List<Campo>();
+            string tipoTransacao = "", tipoRegistro = "";
+            foreach(InformacaoRegistro info in informacoesRegistro)
+            {
+                tipoRegistro = TipoRegistroTransacao(info.Valor);
+                tipoTransacao = TipoTransacaoLinha(info.Valor);
+                string chaveRegistro = "REGISTRO_E" + tipoTransacao + "_" + tipoTransacao.PadLeft(2, '0');
+                Registro registro = new RegistroDAO().Buscar(chaveRegistro);
+                campos.AddRange(registro.Campos);
+            }
 
+            //populando objeto transacao
+            //transElo.AcquireReferenceNumber = Ex
+
+
+        }
 
 
 
@@ -158,6 +178,7 @@ namespace CDT.Importacao.Data.Business.Import
            
         }
 
+        /*
         public void TratarRegistroE01(List<Registro> registros,int idArquivo, ref StreamReader reader, string linha)
         {
             List<InformacaoRegistro> informacoesRegistro = new List<InformacaoRegistro>();
@@ -170,6 +191,51 @@ namespace CDT.Importacao.Data.Business.Import
                 informacoesRegistro.Add(new InformacaoRegistro(registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro, idArquivo, idTransacao, linha));
             }
 
+            Persistir(informacoesRegistro);
+
+
+        }
+        */
+
+        public void InstanciarObjetoTransacao(out TransacaoElo transacao, Registro registro, string linha)
+        {
+            List<Campo> campos = registro.Campos.Where(c => c.FlagRelevante == true).ToList();
+            transacao = new TransacaoElo();
+            switch (TipoTransacaoLinha(linha))
+            {
+                case Constantes.TE01:
+                    switch (TipoRegistroTransacao(linha))
+                    {
+                        case "0":
+                            transacao.CodigoAutorizacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("Código da transação")).PosInicio, campos.Find(c => c.NomeCampo.Equals("Código da transação")).PosFim);
+                            transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("Número do cartão")).PosInicio, campos.Find(c => c.NomeCampo.Equals("Número do cartão")).PosFim);
+                            transacao.IdentificacaoTransacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosInicio, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosFim);
+                            transacao.DataTransacao = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosInicio, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosFim));
+                            transacao.Valor = Decimal.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosInicio, campos.Find(c => c.NomeCampo.Equals("Número de referência da transação")).PosFim));
+                            break;
+                        case "1":
+                            break;
+                        default:
+                            break;
+                    }
+                         
+                    break;
+            }
+        }
+
+
+        
+
+        public void TratarRegistroE01(List<Registro> registros, int idArquivo, ref StreamReader reader, string linha)
+        {
+            TransacaoElo transacao;
+            List<InformacaoRegistro> informacoesRegistro = new List<InformacaoRegistro>();
+            string idTransacao = ExtrairInformacao(linha, 27, 49);
+            string _linha = "";
+            while((_linha = reader.ReadLine())!= "")
+            {
+                
+            }
             Persistir(informacoesRegistro);
 
 
@@ -246,38 +312,12 @@ namespace CDT.Importacao.Data.Business.Import
                
         }
 
-        //public void Finalizar()
-        //{
-        //    List<InformacaoRegistro> infos;
-        //    int indice = 0;
-        //    while(buffer.Count > 0)
-        //    {
-        //        infos =  new List<InformacaoRegistro>();
-                
-        //        while (infos.Count < 5000 && infos.Count <= buffer.Count)
-        //        {   
-        //                indice++;
-        //                InformacaoRegistro r = new InformacaoRegistro(buffer[indice-1].IdRegistro, buffer[indice-1].IdArquivo, buffer[indice-1].Chave, StringUtil.Unzip(buffer[indice-1].Valor));
-        //                infos.Add(r);
-                 
-        //        }
-        //        new InformacaoRegistroDAO().Salvar(infos);
-        //        infos.Clear();
-        //        buffer.RemoveRange(0,indice);
-        //        indice = 0;
-        //    }
-         
-            
-        //}
+   
 
 
         public void Finalizar()
         {
-            //  List<List<InformacaoAux>> partitions = buffer.Select((x, i) => new { Index = i, Value = x })
-            //.GroupBy(x => x.Index / 5000)
-            //.Select(x => x.Select(v => v.Value).ToList())
-            //.ToList();
-
+      
             List<List<InformacaoAux>> partitions = LAB5Utils.ListUtils<InformacaoAux>.Partition(5000, buffer);
             List<InformacaoRegistro> infos;
            foreach(List<InformacaoAux> laux in partitions)
@@ -288,6 +328,7 @@ namespace CDT.Importacao.Data.Business.Import
                 infos = null;
             }
         }
+
         #endregion
     }
 }
