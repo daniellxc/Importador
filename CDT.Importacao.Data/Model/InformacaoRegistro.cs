@@ -25,14 +25,17 @@ namespace CDT.Importacao.Data.Model
         public string Chave { get; set; }
 
         [Column("valor")]
-        public string Valor { get; set; }
+        public byte[] Valor { get; set; }
+
+        [Column("flagProcessado")]
+        public bool FlagProcessado { get; set; }
 
         public InformacaoRegistro()
         {
 
         }
 
-        public InformacaoRegistro(int idRegistro,int idArquivo , string chave, string valor)
+        public InformacaoRegistro(int idRegistro,int idArquivo , string chave, byte[] valor)
         {
             this.IdArquivo = idArquivo;
             this.IdRegistro = idRegistro;

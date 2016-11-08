@@ -10,10 +10,25 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class InformacaoDAO
     {
-        private class DAO : AbstractCrudDao<Informacao> { }
+        private class DAO : AbstractCrudDao<Informacao>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
 
+        DAO _dao = new DAO(new Contexto());
+
+        public void ZSalvar(List<Informacao> infos)
+        {
+            try
+            {
+                _dao.ZZZBulkInsert(infos);
+            }
+            catch (Exception)
+            { }
+        }
 
         public void Salvar(Informacao informacao)
         {

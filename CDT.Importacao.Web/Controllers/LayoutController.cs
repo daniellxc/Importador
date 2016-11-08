@@ -42,5 +42,19 @@ namespace CDT.Importacao.Web.Controllers
         {
             return View("Cadastro", _dao.Buscar(IdLayout));
         }
+
+        public ActionResult Excluir(int IdLayout)
+        {
+            try
+            {
+                _dao.Excluir(IdLayout);
+                
+            }
+            catch (Exception)
+            {
+               
+            }
+            return View("Index");
+        }
     }
 }

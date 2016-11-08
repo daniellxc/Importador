@@ -138,6 +138,7 @@ C:\Repositorios\Importador\CDT.Importacao.Web\bin\System.Web.WebPages.Deployment
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\System.Web.WebPages.dll
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\System.Web.WebPages.Razor.dll
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\WebGrease.dll
+C:\Repositorios\Importador\CDT.Importacao.Web\bin\Z.EntityFramework.Extensions.dll
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\CDT.Importacao.Data.pdb
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\EntityFramework.xml
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\EntityFramework.MappingAPI.pdb

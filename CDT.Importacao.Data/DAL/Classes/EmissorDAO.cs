@@ -9,9 +9,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class EmissorDAO
     {
-        private class DAO : AbstractCrudDao<Emissor> { }
+        private class DAO : AbstractCrudDao<Emissor>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
 
         public void Salvar(Emissor emissor)

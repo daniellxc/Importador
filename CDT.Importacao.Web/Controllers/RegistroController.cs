@@ -31,17 +31,33 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                 _dao.Salvar(registro);
-                return View("Index");
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 return View("Cadastro", registro);
+                
             }
+           
         }
 
         public ActionResult Editar(int IdRegistro)
         {
             return View("Cadastro", _dao.Buscar(IdRegistro));
+        }
+
+        public ActionResult Excluir(int IdRegistro)
+        {
+            try
+            {
+                _dao.Excluir(IdRegistro);
+                return RedirectToAction("Index");
+
+            }catch(Exception ex)
+            {
+                ViewBag.Erro = ex.Message;
+            }
+            return View("Index");
         }
     }
 }

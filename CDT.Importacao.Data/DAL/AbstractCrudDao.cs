@@ -1,71 +1,95 @@
 ﻿
+using CDT.Importacao.Data.DAL;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using PagedList;
 
 namespace CDT.Importacao.Data.Model
 {
     public abstract class AbstractCrudDao<T> where T :  class
     {
-        private Contexto _context = new Contexto();
+        private IContext _context;
+
+        private DbContext contextoConcreto;
+
+    
+
+        public AbstractCrudDao(IContext context)
+        {
+            _context = context;
+            contextoConcreto = _context.GetContext();
+        }
+      
 
         public void Add(T entity)
         {
-            _context.Set<T>().Add(entity);
+            
+            contextoConcreto.Set<T>().Add(entity);
 
+        }
+
+        public void ZZZBulkInsert(IEnumerable<T> entities)
+        {
+
+            try
+            {
+                contextoConcreto.BulkInsert<T>(entities);
+               
+            }
+            catch (Exception)
+            { throw; }
         }
 
         public void BulkInsert(IEnumerable<T> entities)
         {
-            //  List<List<T>> partitions = entities.Select((x, i) => new { Index = i, Value = x })
-            //.GroupBy(x => x.Index / 100000)
-            //.Select(x => x.Select(v => v.Value).ToList())
-            //.ToList();
-            //    foreach(List<T> list in partitions)
-            //    {
-            //        _context.Set<T>().AddRange(list);
-            //        _context.SaveChanges();
-
-            //    }
-            _context.Set<T>().AddRange(entities);
-            _context.SaveChanges();
+           
+            contextoConcreto.Set<T>().AddRange(entities);
+            contextoConcreto.SaveChanges();
                 
             
         }
 
 
-        public Contexto GetContext()
-        {
-            if (_context != null)
-                return _context;
-            return new Contexto();
-        }
+     
 
 
         public void Delete(T entity)
         {
-            _context.Entry<T>(entity).State = System.Data.Entity.EntityState.Deleted;
+            contextoConcreto.Entry<T>(entity).State = System.Data.Entity.EntityState.Deleted;
             CommitChanges();
         }
 
         public List<T> Find(Expression<Func<T, bool>> where)
         {
-            return _context.Set<T>().Where<T>(where).ToList<T>();
+
+            return contextoConcreto.Set<T>().Where<T>(where).ToList();
+        }
+
+        
+
+        public IQueryable<T> ZZZFind(Expression<Func<T, bool>> where)
+        {
+           
+            return contextoConcreto.Set<T>().Where<T>(where);
         }
 
 
         public T Get(params Object[] keys)
         {
-            return _context.Set<T>().Find(keys);
+            return contextoConcreto.Set<T>().Find(keys);
         }
 
         public List<T> GetAll()
         {
-            return _context.Set<T>().ToList<T>();
+            
+            return contextoConcreto.Set<T>().ToList<T>();
+            
         }
 
         public void Update(T updateEntity, object key)
@@ -73,16 +97,20 @@ namespace CDT.Importacao.Data.Model
             var original = this.Get(key);
             if (original != null)
             {
-                _context.Entry(original).CurrentValues.SetValues(updateEntity);
-                _context.SaveChanges();
+                contextoConcreto.Entry(original).CurrentValues.SetValues(updateEntity);
+                contextoConcreto.SaveChanges();
             }
 
         }
 
+        public DbContext GetContext()
+        {
+            return contextoConcreto;
+        }
 
         public void CommitChanges()
         {
-            _context.SaveChanges();
+            contextoConcreto.SaveChanges();
         }
     }
 }

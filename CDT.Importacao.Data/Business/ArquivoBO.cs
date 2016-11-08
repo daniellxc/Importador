@@ -3,6 +3,7 @@ using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -41,14 +42,20 @@ namespace CDT.Importacao.Data.Business
             
         }
 
+        private void AlterarStatus(int idStatus)
+        {
+            arquivo.IdStatusArquivo = idStatus;
+            _dao.Salvar(arquivo);
+        }
+
         public void Importar()
         {
-            
+           
             try
             {
                 if (arquivo.IdStatusArquivo != 2)
                 {
-                    
+
                     ObjetoImportador().Importar(arquivo);
                     arquivo.IdStatusArquivo = 2;
                     arquivo.DataImportacao = DateTime.Now;
@@ -60,9 +67,12 @@ namespace CDT.Importacao.Data.Business
 
             }catch(Exception ex)
             {
+                AlterarStatus(3);//erro no processamento
                 throw ex;
             }
         }
+
+   
 
     }
 }

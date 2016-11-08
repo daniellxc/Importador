@@ -53,5 +53,15 @@ namespace CDT.Importacao.Data.Utils
                 return Encoding.UTF8.GetString(mso.ToArray());
             }
         }
+
+        public static string[] Split(String splitter, string str)
+        {
+             return  str.Split(new string[] { splitter } , StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string StringToMoney(string str)
+        {
+            return  string.Format("{0:0.00}", Convert.ToDecimal(str) / 100);
+        }
     }
 }

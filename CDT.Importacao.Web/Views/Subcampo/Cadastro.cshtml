@@ -1,0 +1,72 @@
+﻿@model CDT.Importacao.Data.Model.Subcampo
+@{
+    SelectList tiposDado = new SelectList(new CDT.Importacao.Data.DAL.Classes.TipoDadoDAO().ListarTodos(), "IdTipoDado", "NomeTipoDado");
+    SelectList tiposSubcampo = new SelectList(new CDT.Importacao.Data.DAL.Classes.TipoSubcampoDAO().ListarTodos().OrderByDescending(x=>x.IdTipoSubcampo), "IdTipoSubcampo", "NomeTipoSubcampo");
+    CDT.Importacao.Data.Model.Campo campo = null;
+
+    if(Model != null)
+    {
+        campo = new CDT.Importacao.Data.DAL.Classes.CampoDAO().Buscar(Model.IdCampo);
+    }
+
+}
+
+<h2>Cadastro de Subcampo</h2>
+
+@using (Html.BeginForm("Salvar", "Subcampo"))
+{
+    <fieldset>
+        <div class="form-group">
+           @if (campo != null)
+           {
+            @Html.Label("Campo referente")<br />
+
+            <h2 class="label label-default">@campo.NomeCampo</h2><br />
+            <span>Posição inicial: @campo.PosInicio</span><br />
+            <span>Posição final: @campo.PosFim</span><br />
+            @Html.Hidden("idCampo",campo.IdCampo)<br />
+           }
+          
+           
+            @Html.Label("Tipo de Dado")
+            @Html.DropDownListFor(x => x.IdTipoDado, tiposDado, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdTipoDado)<br />
+
+
+            @Html.Label("Tipo do subcampo")
+            @Html.DropDownListFor(x => x.IdTipoSubcampo, tiposSubcampo, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.IdTipoSubcampo)<br />
+
+
+            @Html.Label("Nome do subcampo")
+            @Html.TextBoxFor(x => x.NomeSubcampo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.NomeSubcampo)<br />
+
+            @Html.Label("Posição Inicial")
+            @Html.EditorFor(x => x.PosInicio, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.PosInicio)
+
+            @Html.Label("Posição Final")
+            @Html.EditorFor(x => x.PosFim, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.PosFim)<br /><br />
+
+           
+
+
+            @if (Model != null)
+            {
+
+                @Html.HiddenFor(x => x.IdSubcampo);
+            }
+
+        </div>
+        <a href="/Registro/Index" class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}
+
+
+
+

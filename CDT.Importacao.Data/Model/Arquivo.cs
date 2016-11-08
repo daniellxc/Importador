@@ -25,6 +25,7 @@ namespace CDT.Importacao.Data.Model
 
         [Column("nomeArquivo")]
         [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
+        [DataType(DataType.Upload)]
         public string  NomeArquivo{ get; set; }
 
         [Column("dataImportacao")]

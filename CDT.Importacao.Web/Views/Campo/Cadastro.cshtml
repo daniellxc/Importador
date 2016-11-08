@@ -1,5 +1,7 @@
 ﻿@model CDT.Importacao.Data.Model.Campo
 @{
+
+    SelectList layouts = new SelectList(new CDT.Importacao.Data.DAL.Classes.LayoutDAO().ListarTodos(), "IdLayout", "NomeLayout");
     SelectList registros = new SelectList(new CDT.Importacao.Data.DAL.Classes.RegistroDAO().ListarTodos(), "IdRegistro", "NomeRegistro");
     SelectList tiposDado = new SelectList(new CDT.Importacao.Data.DAL.Classes.TipoDadoDAO().ListarTodos(), "IdTipoDado", "NomeTipoDado");
 }
@@ -10,13 +12,18 @@
 {
     <fieldset>
         <div class="form-group">
+
+            @Html.Label("Layout")
+            @Html.DropDownList("Layout", layouts , "---", new { @class = "form-control", @onchange="return BindDDL(this,idRegistro,'Campo','RegistrosLayout');" })
+           
+
             @Html.Label("Registro")
-            @Html.DropDownListFor(x => x.IdRegistro, registros, "---", new { @class = "form-control" })
-            @Html.ValidationMessageFor(x => x.IdRegistro)
+            @Html.DropDownList("idRegistro",new SelectList(String.Empty,"Value","Text"), "---", new { @class = "form-control" })
+            @*@Html.ValidationMessageFor(x=>x.IdRegistro)<br />*@
 
             @Html.Label("Tipo")
             @Html.DropDownListFor(x => x.IdTipoDado, tiposDado, "---", new { @class = "form-control" })
-            @Html.ValidationMessageFor(x => x.IdTipoDado)
+            @Html.ValidationMessageFor(x => x.IdTipoDado)<br />
 
 
             @Html.Label("Nome do Campo")
@@ -29,7 +36,7 @@
 
             @Html.Label("Posição Final")
             @Html.EditorFor(x => x.PosFim, new { @class = "form-control" })
-            @Html.ValidationMessageFor(x => x.PosFim)<br />
+            @Html.ValidationMessageFor(x => x.PosFim)<br /><br />
 
             @Html.Label("Campo relevante")
             @Html.EditorFor(x => x.FlagRelevante, new { @class = "form-control" })
@@ -49,4 +56,54 @@
 
     </fieldset>
 }
+
+
+@*<script type="text/javascript">
+    $(document).ready(function () {
+        //Dropdownlist Selectedchange event
+        $('#Layout').change(function ()
+        {
+            if ($("#Layout").val() != "")
+            {
+                $("#Registro").empty();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("RegistrosLayout")', // we are calling json method
+
+                    dataType: 'json',
+
+                    data: { idLayout: $("#Layout").val() },
+                    // here we are get value of selected country and passing same value
+
+
+                    success: function (states) {
+
+                        // states contains the JSON formatted list
+                        // of states passed from the controller
+
+                        $.each(states, function (i, state) {
+                            $("#Registro").append('<option value="' + state.Value + '">' +
+                                 state.Text + '</option>');
+                            // here we are adding option for States
+
+                        }
+
+                        );
+
+
+                        
+                    },
+                    error: function (ex) {
+                        alert('Failed to retrieve states.' + ex);
+                    }
+                });
+                return false;
+            } else {
+                $("#Registro").empty();
+            }
+
+        })
+    });
+
+    </script>*@
 

@@ -9,9 +9,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class LayoutDAO
     {
-        private class DAO : AbstractCrudDao<Layout> { }
+        private class DAO : AbstractCrudDao<Layout>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
 
         public void Salvar(Layout layout)
@@ -35,6 +41,10 @@ namespace CDT.Importacao.Data.DAL.Classes
             }
         }
 
+        public void Excluir(int id)
+        {
+             _dao.Delete(_dao.Get(id));
+        }
 
         public List<Layout> ListarTodos()
         {

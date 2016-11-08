@@ -40,6 +40,8 @@ namespace CDT.Importacao.Data.Model
         [ForeignKey("IdTipoDado")]
         public virtual TipoDado FK_TipoDado { get; set; }
 
+        public virtual ICollection<Subcampo> Subcampos { get; set; }
+
 
 
     }

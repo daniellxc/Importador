@@ -1,6 +1,7 @@
 ﻿using CDT.Importacao.Data.Model;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,9 +10,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class CampoDAO
     {
-        private class DAO : AbstractCrudDao<Campo> { }
+        private class DAO : AbstractCrudDao<Campo>
+        {
+            public DAO(Contexto ctx):base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
 
         public void Salvar(Campo campo)
@@ -35,6 +42,21 @@ namespace CDT.Importacao.Data.DAL.Classes
             }
         }
 
+
+        public void Excluir(int idCampo)
+        {
+            try
+            {
+                _dao.Delete(_dao.Get(idCampo));
+            }catch(DbUpdateException dbex)
+            {
+                throw new Exception("Erro ao excluir." + dbex.Message);
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         public List<Campo> ListarTodos()
         {

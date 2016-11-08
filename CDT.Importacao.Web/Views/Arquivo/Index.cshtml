@@ -15,8 +15,8 @@
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => StatusArquivo(d.FK_StatusArquivo)).Titled("Status");
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => DataImportacao(d.DataImportacao)).Titled("Data Processamento");
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnImportar(d));
-    //c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("importar", "importar", new { IdArquivo = d.IdArquivo }, new { @onclick = "return Confirm('Deseja realmente importar este arquivo?')" } ));
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdArquivo = d.IdArquivo }));
+   
 }
 )
 

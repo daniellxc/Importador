@@ -6,21 +6,50 @@
     }
 }
 
+function BindDDL(trigger, target, controller, action) {
 
-$(function () {
-    $(".calendario").datepicker({
-        dateFormat: 'dd/mm/yy',
-        dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-        dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
-        dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-        monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-        monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-        nextText: '>>',
-        prevText: '<<',
-        //showOn: "button",
-        // buttonImage: "Content/images/calendar-icon.png",
-        buttonImageOnly: true
+    if ($(trigger).val() != "") {
+        $(target).empty();
+
+        $.ajax({
+            type: 'POST',
+            url: "/importacao/" + controller + "/" + action, // we are calling json method
+
+            dataType: 'json',
+
+            data: { id: $(trigger).val() },
+            // here we are get value of selected country and passing same value
 
 
-    });
-});
+            success: function (states) {
+
+                // states contains the JSON formatted list
+                // of states passed from the controller
+
+                $.each(states, function (i, state) {
+
+                    $(target).append('<option value="' + state.Value + '">' +
+                         state.Text + '</option>');
+                    // here we are adding option for States
+
+                });
+            },
+            error: function (ex) {
+                alert('erro ao recuperar itens.' + ex);
+            }
+
+        });
+
+       
+
+        return false;
+
+    } else {
+        $(target).empty();
+        $(target).append('<option value="">---</option>');
+        $(target).change();
+    }
+
+   
+
+}

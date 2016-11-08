@@ -40,7 +40,7 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                 _dao.Salvar(campo);
-                return View("Index");
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -48,9 +48,37 @@ namespace CDT.Importacao.Web.Controllers
             }
         }
 
+        
+        public ActionResult RegistrosLayout(int id)
+        {
+            return Json(new SelectList(new RegistroDAO().RegistrosLayout(id), "IdRegistro", "NomeRegistro"));
+        }
+
         public ActionResult Editar(int IdCampo)
         {
             return View("Cadastro", _dao.Buscar(IdCampo));
         }
+
+        public ActionResult Excluir(int IdCampo)
+        {
+            try
+            {
+                _dao.Excluir(IdCampo);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Erro = ex.Message;
+            }
+            return View("Index");
+        }
+
+        public ActionResult AddSubcampo(int IdCampo)
+        {
+            Session["IdCampo"]= IdCampo;
+            return RedirectToAction("Cadastro", "Subcampo", _dao.Buscar(IdCampo));
+        }
+
     }
 }

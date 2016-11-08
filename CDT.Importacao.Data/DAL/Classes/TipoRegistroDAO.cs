@@ -9,9 +9,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class TipoRegistroDAO
     {
-        private class DAO : AbstractCrudDao<TipoRegistro> { }
+        private class DAO : AbstractCrudDao<TipoRegistro>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
         public List<TipoRegistro> ListarTodos()
         {

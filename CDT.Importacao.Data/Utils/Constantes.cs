@@ -25,5 +25,33 @@ namespace CDT.Importacao.Data.Utils
         public const string TE40 = "40";
         public const string TE44 = "44";
         #endregion
+
+        public class LiquidacaoInternacionalElo
+        {
+            public const string HEADER_GRUPO_CARTOES = "01";
+            public const string DETALHE_SEM_SDR = "05";
+            public const string DETALHE_COM_SDR = "06";
+            public const string SDR = "07";
+            public const string CONVERSAO_MOEDAS = "08";
+            public const string TRAILER_GRUPO_CARTOES = "09";
+            public const string HEADER_TAXAS = "20";
+            public const string DETALHE_TAXAS = "25";
+            public const string TRAILER_TAXAS = "29";
+            public const string HEADER_CORRECOES = "30";
+            public const string DETALHE_CORRECOES = "35";
+            public const string TRAILER_CORRECOES = "39";
+            public const string HEADER_INTERCAMBIO = "40";
+            public const string DETALHE_INTERCAMBIO = "45";
+            public const string TRAILER_INTERCAMBIO = "49";
+            public const string HEADER_DESEMBOLSO = "50";
+            public const string DETALHE_DESEMBOLSO = "52";
+            public const string TRAILER_DESEMBOLSO = "55";
+            public const string TRAILER_ARQUIVO = "99";
+        }
+
+        public const Int16 BUFFER_LIMIT = 1000;
+
+        public const string SPLITTER_REGISTRO = "{*}";
+        public const string SPLITTER_LINHA = "||";
     }
 }

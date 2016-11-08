@@ -41,7 +41,10 @@ GridMvc = (function ($) {
         //load current lang options:
         this.lang = GridMvc.lang[this.options.lang];
         if (typeof (this.lang) == 'undefined')
-            this.lang = GridMvc.lang.en;
+        
+            this.lang = GridMvc.lang.pt;
+        
+            
         this.events = [];
         if (this.options.selectable)
             this.initGridRowsEvents();
@@ -382,23 +385,45 @@ GridMvc = (function ($) {
 */
 if (typeof (GridMvc.lang) == 'undefined')
     GridMvc.lang = {};
-GridMvc.lang.en = {
-    filterTypeLabel: "Type: ",
-    filterValueLabel: "Value:",
-    applyFilterButtonText: "Apply",
+
+
+GridMvc.lang.pt = {
+    filterTypeLabel: "Tipo: ",
+    filterValueLabel: "Valor :",
+    applyFilterButtonText: "Aplicar",
     filterSelectTypes: {
-        Equals: "Equals",
-        StartsWith: "StartsWith",
-        Contains: "Contains",
-        EndsWith: "EndsWith",
-        GreaterThan: "Greater than",
-        LessThan: "Less than"
+        Equals: "Igual",
+        StartsWith: "Começa com",
+        Contains: "Contém",
+        EndsWith: "Termina com",
+        GreaterThan: "Maior que",
+        LessThan: "Menor que",
+        GreaterThanOrEquals: "Maior ou igual à",
+        LessThanOrEquals: "Menor ou igual à",
     },
-    code: 'en',
-    boolTrueLabel: "Yes",
-    boolFalseLabel: "No",
-    clearFilterLabel: "Clear filter"
+    code: 'pt',
+    boolTrueLabel: "Sim",
+    boolFalseLabel: "Não",
+    clearFilterLabel: "Limpar",
 };
+
+//GridMvc.lang.en = {
+//    filterTypeLabel: "Type: ",
+//    filterValueLabel: "Value:",
+//    applyFilterButtonText: "Apply",
+//    filterSelectTypes: {
+//        Equals: "Equals",
+//        StartsWith: "StartsWith",
+//        Contains: "Contains",
+//        EndsWith: "EndsWith",
+//        GreaterThan: "Greater than",
+//        LessThan: "Less than"
+//    },
+//    code: 'en',
+//    boolTrueLabel: "Yes",
+//    boolFalseLabel: "No",
+//    clearFilterLabel: "Clear filter"
+//};
 /***
 * ============= FILTER WIDGETS =============
 * Filter widget allows onRender custom filter user interface for different columns. 

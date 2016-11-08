@@ -6,13 +6,14 @@
 
 @Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
 
-@Html.Grid(new RegistroDAO().ListarTodos()).Columns(c =>
+@Html.Grid(new RegistroDAO().ListarTodos().OrderByDescending(x=>x.IdRegistro)).Columns(c =>
 {
     c.Add(x => x.IdRegistro).Titled("ID");
-    c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout");
-    c.Add(x => x.NomeRegistro).Titled("Nome");
+    c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout").Filterable(true);
+    c.Add(x => x.NomeRegistro).Titled("Nome").Filterable(true);
     c.Add(x => x.ChaveRegistro).Titled("Chave");
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("campos", "Cadastro","Campo", new { IdRegistro = d.IdRegistro },""));
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdRegistro = d.IdRegistro }));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("excluir", "Excluir", new { IdRegistro = d.IdRegistro }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
 }
-)
+).WithPaging(50)

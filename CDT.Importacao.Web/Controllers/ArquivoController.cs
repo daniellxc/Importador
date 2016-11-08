@@ -30,6 +30,7 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                 arquivo.DataImportacao = DateTime.Parse("01/01/1900");
+                arquivo.IdStatusArquivo = 1;
                 _dao.Salvar(arquivo);
                 return View("Index");
             }
@@ -48,7 +49,7 @@ namespace CDT.Importacao.Web.Controllers
         {
             try
             {
-                 new ArquivoBO(IdArquivo).Importar();
+                 new ArquivoBO(_dao.Buscar(IdArquivo)).Importar();
 
                 return View("Index");
 

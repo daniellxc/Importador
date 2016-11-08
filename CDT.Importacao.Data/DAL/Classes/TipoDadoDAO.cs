@@ -9,9 +9,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class TipoDadoDAO
     {
-        private class DAO : AbstractCrudDao<TipoDado> { }
+        private class DAO : AbstractCrudDao<TipoDado>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
 
         public void Salvar(TipoDado tipoDado)

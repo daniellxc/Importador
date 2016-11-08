@@ -9,9 +9,15 @@ namespace CDT.Importacao.Data.DAL.Classes
 {
     public class ArquivoDAO
     {
-        private class DAO : AbstractCrudDao<Arquivo> { }
+        private class DAO : AbstractCrudDao<Arquivo>
+        {
+            public DAO(Contexto ctx) : base(ctx)
+            {
 
-        DAO _dao = new DAO();
+            }
+        }
+
+        DAO _dao = new DAO(new Contexto());
 
 
         public void Salvar(Arquivo arquivo)
