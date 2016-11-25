@@ -20,15 +20,7 @@ namespace CDT.Importacao.Data.DAL.Classes
 
         DAO _dao = new DAO(new Contexto());
 
-        public void ZSalvar(List<Informacao> infos)
-        {
-            try
-            {
-                _dao.ZZZBulkInsert(infos);
-            }
-            catch (Exception)
-            { }
-        }
+       
 
         public void Salvar(Informacao informacao)
         {
@@ -41,7 +33,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(informacao, informacao.idInformacao);
+                    _dao.Update(informacao);
                 }
 
             }
@@ -65,6 +57,11 @@ namespace CDT.Importacao.Data.DAL.Classes
         }
        
 
+        public void ExecuteCommand(string sql, Array parametros)
+        {
+            
+            _dao.ExecuteCommand(sql, parametros);
+        }
 
         //public void BulkInsert(List<Informacao> informacoes)
         //{

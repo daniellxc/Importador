@@ -27,8 +27,8 @@ namespace CDT.Importacao.Data.Model
         [Column("valor")]
         public byte[] Valor { get; set; }
 
-        [Column("flagProcessado")]
-        public bool FlagProcessado { get; set; }
+        [Column("flagErro")]
+        public bool FlagErro { get; set; }
 
         public InformacaoRegistro()
         {
@@ -41,6 +41,16 @@ namespace CDT.Importacao.Data.Model
             this.IdRegistro = idRegistro;
             this.Chave = chave;
             this.Valor = valor;
+         
+        }
+
+        public InformacaoRegistro(int idRegistro, int idArquivo, string chave, byte[] valor, bool flagErro)
+        {
+            this.IdArquivo = idArquivo;
+            this.IdRegistro = idRegistro;
+            this.Chave = chave;
+            this.Valor = valor;
+            this.FlagErro = flagErro;
         }
     }
 }

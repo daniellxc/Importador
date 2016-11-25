@@ -32,7 +32,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(campo, campo.IdCampo);
+                    _dao.Update(campo);
                 }
 
             }

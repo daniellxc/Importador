@@ -31,7 +31,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(layout, layout.IdLayout);
+                    _dao.Update(layout);
                 }
 
             }

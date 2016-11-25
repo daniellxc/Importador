@@ -31,7 +31,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(tipoDado, tipoDado.IdTipoDado);
+                    _dao.Update(tipoDado);
                 }
 
             }

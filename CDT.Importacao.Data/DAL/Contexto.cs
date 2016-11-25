@@ -27,6 +27,8 @@ namespace CDT.Importacao.Data.Model
         public DbSet<TipoDado> TiposDado { get; set; }
         public DbSet<TipoRegistro> TiposRegistro { get; set; }
         public DbSet<TipoSubcampo> TiposSubcampo { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+
         #endregion 
 
 
@@ -47,7 +49,9 @@ namespace CDT.Importacao.Data.Model
 
         public DbContext GetContext()
         {
+            
             return this;
+            
         }
     }
 }

@@ -12,15 +12,12 @@ namespace CDT.Importacao.Data.Model.Emissores
     public class TransacaoElo
     {
        
-
-
-
         [Column("Id_TransacaoElo")]
         [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id_TransacaoElo { get; set; }
 
         [Column("TE")]
-        public int TE { get; set; }
+        public string TE { get; set; }
 
         [Column("FlagProblemaTratamento")]
         public bool FlagProblemaTratamento { get; set; }
@@ -59,7 +56,7 @@ namespace CDT.Importacao.Data.Model.Emissores
         public string CodigoTransacao { get; set; }
 
         [Column("Id_Incoming")]
-        public int Id_Incoming { get; set; }
+        public string Id_Incoming { get; set; }
 
         [Column("MensagemTexto")]
         public string MensagemTexto { get; set; }
@@ -68,20 +65,13 @@ namespace CDT.Importacao.Data.Model.Emissores
         public string CodigoAutorizacao { get; set; }
 
         [Column("NumeroParcelas")]
-        public string NumeroParcelas
-        {
-            get;
-            set;
-        }
+        public string NumeroParcelas{get;set;}
+
         [Column("FlagJuros")]
         public bool FlagJuros { get; set; }
 
         [Column("ParcelaPedida")]
-        public int ParcelaPedida
-        {
-            get;
-            set;
-        }
+        public int ParcelaPedida  { get; set;}
 
         [Column("Id_TipoParcela")]
         public int Id_TipoParcela { get; set; }
@@ -115,6 +105,21 @@ namespace CDT.Importacao.Data.Model.Emissores
 
         [Column("AcquireReferenceNumber")]
         public string AcquireReferenceNumber { get; set; }
+
+        [Column("IndicadorMeio")]
+        public string IndicadorMeio { get; set; }
+
+        [Column("IdTipoOperacao")]
+        public int IdTipoOperacao { get; set; }
+
+        [Column("FlagTransacaoInternacional")]
+        public bool FlagTransacaoInternacional { get; set; }
+
+        [Column("IdProduto")]
+        public bool IdProduto { get; set; }
+
+
+
 
     }
 }

@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-    public class LayoutController : Controller
+    public class LayoutController : BaseController
     {
         private LayoutDAO _dao = new LayoutDAO();
 
@@ -34,6 +34,7 @@ namespace CDT.Importacao.Web.Controllers
                 return View("Index");
             }catch(Exception ex)
             {
+                Alert(ex.Message);
                 return View("Cadastro",layout);
             }
         }
@@ -50,9 +51,9 @@ namespace CDT.Importacao.Web.Controllers
                 _dao.Excluir(IdLayout);
                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-               
+                Alert(ex.Message);
             }
             return View("Index");
         }

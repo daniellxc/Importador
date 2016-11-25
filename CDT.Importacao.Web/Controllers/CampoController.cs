@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-    public class CampoController : Controller
+    public class CampoController : BaseController
     {
         CampoDAO _dao = new CampoDAO();
         // GET: Campo
@@ -44,6 +44,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 return View("Cadastro", campo);
             }
         }
@@ -69,6 +70,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 ViewBag.Erro = ex.Message;
             }
             return View("Index");

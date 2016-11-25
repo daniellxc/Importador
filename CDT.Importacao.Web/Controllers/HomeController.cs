@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDT.Importacao.Data.Utils.Quartz.Schedulers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,10 +8,13 @@ using System.Web.Mvc;
 namespace CDT.Importacao.Web.Controllers
 {
    
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
+            /*INICIANDO SCHEDULERS*/
+            // ConciliacaoJobScheduler.Start();
+            Alert("Testando envio de mensagem.");
             return View();
         }
 

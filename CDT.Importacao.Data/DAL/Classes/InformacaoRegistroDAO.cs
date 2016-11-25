@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PagedList;
+using System.Linq.Expressions;
 
 namespace CDT.Importacao.Data.DAL.Classes
 {
@@ -33,7 +34,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(informacaoRegistro, informacaoRegistro.IdInformacaoRegistro);
+                    _dao.Update(informacaoRegistro);
                 }
 
             }
@@ -48,7 +49,7 @@ namespace CDT.Importacao.Data.DAL.Classes
             
             try
             {
-                _dao.BulkInsert(InformacaoRegistro);
+                _dao.InsertData(InformacaoRegistro);
 
             }
             catch (Exception ex)
@@ -58,7 +59,44 @@ namespace CDT.Importacao.Data.DAL.Classes
         }
 
 
+        public void Update(List<InformacaoRegistro> inforacoesRegistro)
+        {
+            _dao.Update(inforacoesRegistro);
+        }
 
+        public void Update(InformacaoRegistro inforacaoRegistro)
+        {
+            _dao.Update(inforacaoRegistro);
+        }
+
+
+        public InformacaoRegistro BuscarHeaderArquivo(int idArquivo)
+        {
+            var query = from inf in _dao.GetContext().Set<InformacaoRegistro>()
+                        join reg in _dao.GetContext().Set<Registro>()
+                        on inf.IdRegistro equals reg.IdRegistro
+                        join lay in _dao.GetContext().Set<Layout>()
+                        on reg.IdLayout equals lay.IdLayout
+                        join tre in _dao.GetContext().Set<TipoRegistro>()
+                        on reg.IdTipoRegistro equals tre.IdTipoRegistro
+                        where inf.IdArquivo == idArquivo && tre.NomeTipoRegistro.ToLower().Equals("header")
+                        select inf;
+            return query.FirstOrDefault();
+        }
+
+        public InformacaoRegistro BuscarTrailerArquivo(int idArquivo)
+        {
+            var query = from inf in _dao.GetContext().Set<InformacaoRegistro>()
+                        join reg in _dao.GetContext().Set<Registro>()
+                        on inf.IdRegistro equals reg.IdRegistro
+                        join lay in _dao.GetContext().Set<Layout>()
+                        on reg.IdLayout equals lay.IdLayout
+                        join tre in _dao.GetContext().Set<TipoRegistro>()
+                        on reg.IdTipoRegistro equals tre.IdTipoRegistro
+                        where inf.IdArquivo == idArquivo && tre.NomeTipoRegistro.ToLower().Equals("trailer")
+                        select inf;
+            return query.FirstOrDefault();
+        }
 
         public List<InformacaoRegistro> ListarTodos()
         {
@@ -109,6 +147,10 @@ namespace CDT.Importacao.Data.DAL.Classes
             
         }
 
+        public List<InformacaoRegistro> TransacoesAceitas(int idArquivo)
+        {
+            return _dao.Find(x => x.IdArquivo == idArquivo && x.FlagErro == false).ToList();
+        }
         
 
         public InformacaoRegistro Buscar(int id)

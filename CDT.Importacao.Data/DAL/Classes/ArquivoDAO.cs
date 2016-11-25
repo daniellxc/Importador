@@ -30,7 +30,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                     _dao.CommitChanges();
                 }else
                 {
-                    _dao.Update(arquivo, arquivo.IdArquivo);
+                    _dao.Update(arquivo);
                 }
 
             }catch(Exception ex)

@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-    public class RegistroController : Controller
+    public class RegistroController : BaseController
     {
         RegistroDAO _dao = new RegistroDAO();
 
@@ -35,6 +35,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 return View("Cadastro", registro);
                 
             }
@@ -55,6 +56,7 @@ namespace CDT.Importacao.Web.Controllers
 
             }catch(Exception ex)
             {
+                Alert(ex.Message);
                 ViewBag.Erro = ex.Message;
             }
             return View("Index");

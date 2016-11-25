@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-    public class SubcampoController : Controller
+    public class SubcampoController : BaseController
     {
         SubcampoDAO _dao = new SubcampoDAO();
         // GET: Subcampo
@@ -41,6 +41,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 return View("Cadastro", subcampo);
             }
         }
@@ -67,6 +68,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 ViewBag.Erro = ex.Message;
             }
             return View("Index");

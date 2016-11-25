@@ -9,10 +9,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using PagedList;
+using System.Data;
+using System.ComponentModel;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Text.RegularExpressions;
+
 
 namespace CDT.Importacao.Data.Model
 {
-    public abstract class AbstractCrudDao<T> where T :  class
+    public  abstract class AbstractCrudDao<T> where T :  class
     {
         private IContext _context;
 
@@ -34,17 +43,7 @@ namespace CDT.Importacao.Data.Model
 
         }
 
-        public void ZZZBulkInsert(IEnumerable<T> entities)
-        {
-
-            try
-            {
-                contextoConcreto.BulkInsert<T>(entities);
-               
-            }
-            catch (Exception)
-            { throw; }
-        }
+        
 
         public void BulkInsert(IEnumerable<T> entities)
         {
@@ -92,15 +91,40 @@ namespace CDT.Importacao.Data.Model
             
         }
 
-        public void Update(T updateEntity, object key)
+
+        //public void Update(T updateEntity, object key)
+        //{
+        //    var original = this.Get(key);
+        //    if (original != null)
+        //    {
+        //        contextoConcreto.Entry(original).CurrentValues.SetValues(updateEntity);
+        //        contextoConcreto.SaveChanges();
+        //    }
+
+        //}
+
+        public virtual void Update(T entity)
         {
-            var original = this.Get(key);
-            if (original != null)
+            contextoConcreto.Entry(entity).State = EntityState.Modified;
+            contextoConcreto.SaveChanges();
+        }
+
+        public void Update(List<T> entities)
+        {
+            foreach(var entity in entities)
             {
-                contextoConcreto.Entry(original).CurrentValues.SetValues(updateEntity);
-                contextoConcreto.SaveChanges();
+                contextoConcreto.Entry(entity).State = EntityState.Modified;
             }
 
+            contextoConcreto.SaveChanges();
+               
+        }
+
+
+
+        public int ExecuteCommand(string sqlQuery, Array parms)
+        {
+           return contextoConcreto.Database.ExecuteSqlCommand(sqlQuery, parms);
         }
 
         public DbContext GetContext()
@@ -112,5 +136,42 @@ namespace CDT.Importacao.Data.Model
         {
             contextoConcreto.SaveChanges();
         }
+
+        public void InsertData(List<T> list)
+        {
+           
+            DataTable dt = new DataTable("MyTable");
+            dt = ConvertToDataTable(list);
+            //ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            using (SqlBulkCopy bulkcopy = new SqlBulkCopy(contextoConcreto.Database.Connection.ConnectionString))
+            {
+                bulkcopy.BulkCopyTimeout = 660;
+                bulkcopy.DestinationTableName = contextoConcreto.GetTableName<T>();
+                bulkcopy.WriteToServer(dt);
+            }
+            dt = null;
+        }
+
+        public static DataTable ConvertToDataTable<T>(IList<T> data)
+        {
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(T));
+            DataTable table = new DataTable();
+            foreach (PropertyDescriptor prop in properties)
+                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+            foreach (T item in data)
+            {
+                DataRow row = table.NewRow();
+                foreach (PropertyDescriptor prop in properties)
+                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                table.Rows.Add(row);
+            }
+            return table;
+        }
+
+       
+
+
+
+
     }
 }

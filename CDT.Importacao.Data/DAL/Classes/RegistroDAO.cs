@@ -32,7 +32,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(registro, registro.IdRegistro);
+                    _dao.Update(registro);
                 }
 
             }

@@ -42,7 +42,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(transacao, transacao.Id_TransacaoElo);
+                    _dao.Update(transacao);
                 }
 
             }
@@ -61,7 +61,8 @@ namespace CDT.Importacao.Data.DAL.Classes
 
             try
             {
-               _dao.ZZZBulkInsert(transacoes);
+                
+                _dao.InsertData(transacoes);
             }
             catch (Exception ex)
             {
@@ -83,7 +84,27 @@ namespace CDT.Importacao.Data.DAL.Classes
             return _dao.Get(id);
         }
 
+        
 
+        public List<TransacaoElo> TransacoesPorCodigoMoeda(string nomeArquivo, int codMoeda)
+        {
+            return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo);
+        }
+
+        public List<TransacaoElo> TransacoesPorCodigoTransacao(string nomeArquivo, string codTransacao)
+        {
+            return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo) && x.TE.Equals(codTransacao));
+        }
+
+        public List<TransacaoElo> TransacoesCredito(string nomeArquivo)
+        {
+            return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo) && (x.TE.Equals("06") || x.TE.Equals("20")));
+        }
+
+        public List<TransacaoElo> TransacoesDebito(string nomeArquivo)
+        {
+            return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo) && (x.TE.Equals("05") || x.TE.Equals("10") || x.TE.Equals("15") ));
+        }
 
     }
 }

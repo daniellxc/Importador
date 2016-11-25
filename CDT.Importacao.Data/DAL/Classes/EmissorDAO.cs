@@ -31,7 +31,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(emissor, emissor.IdEmissor);
+                    _dao.Update(emissor);
                 }
 
             }
@@ -55,6 +55,12 @@ namespace CDT.Importacao.Data.DAL.Classes
         public Emissor Buscar(int id)
         {
             return _dao.Get(id);
+        }
+
+        public void Atualizar(Emissor emissor)
+        {
+            _dao.Update(emissor);
+            
         }
     }
 }

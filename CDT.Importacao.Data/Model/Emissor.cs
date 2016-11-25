@@ -24,7 +24,8 @@ namespace CDT.Importacao.Data.Model
         [Column("nomeBaseEmissor")]
         public string NomeBaseEmissor { get; set; }
 
-
+        [Column("codigoEmissor")]
+        public string CodigoEmissor { get; set; }
 
 
     }

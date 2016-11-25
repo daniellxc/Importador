@@ -1,0 +1,25 @@
+﻿
+@{
+    string mensagem = ViewBag.Erro;
+ }
+
+<div class="panel panel-warning  clickable" data-effect="slideUp">
+    <div class="panel-heading">
+        <h3 class="panel-title"></h3>
+        <!-- Watch Out: Here We must use the effect name in the data tag-->
+       
+    </div>
+    <div class="panel-body">
+        <p>@mensagem</p>
+    </div>
+  
+</div> 
+
+<script>
+$(function(){
+$('.clickable').on('click',function(){
+    var effect = $(this).data('effect');
+        $(this).closest('.panel')[effect]();
+	})
+})
+</script>

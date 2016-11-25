@@ -32,7 +32,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                 }
                 else
                 {
-                    _dao.Update(TipoSubcampo, TipoSubcampo.IdTipoSubcampo);
+                    _dao.Update(TipoSubcampo);
                 }
 
             }

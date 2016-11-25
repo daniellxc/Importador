@@ -50,7 +50,7 @@ namespace CDT.Importacao.Data.Business.Import
                         copia = linha; 
                     }
 
-                    PersistirLinhas();
+                    PersistirBufferInformacoes();
                     ImportarInformacaoRegisto(registros.Where(r => r.FK_TipoRegistro.NomeTipoRegistro.Equals("Trailer")).First(), arquivo.IdArquivo, StringUtil.Zip(copia),"" );
                     
                 }
@@ -62,52 +62,47 @@ namespace CDT.Importacao.Data.Business.Import
         }
 
 
-        public void Conciliar(Arquivo arquivo)
+        public void GerarTransacoesEmissor(Arquivo arquivo)
         {
             InformacaoRegistroDAO infregDAO = new InformacaoRegistroDAO();
             RegistroDAO regDAO = new RegistroDAO();
             List<InformacaoRegistro> informacoes = infregDAO.BuscarDetalhesComprimidosArquivo(arquivo.IdArquivo);
-            //registrosArquivo = registroDAO.RegistroPorArquivo(arquivo.IdArquivo);
             
             int limit = informacoes.Count();
-           
-            for(int i = 0; i< limit; i++)
-        
-            {
-                InformacaoRegistro informacoesTransacao = informacoes[i];
-                if (informacoesTransacao.Chave!=string.Empty)
+
+     
+                for (int i = 0; i < limit; i++)
                 {
-                    TransacaoElo transacaoElo = new TransacaoElo();
-                    DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor));
-                    InserirBufferElo(transacaoElo, arquivo.IdEmissor);
-                    transacaoElo = null;       
-                }               
-            }
-            AtualizarBufferElo(arquivo.IdEmissor);
+                    try
+                    {
+                        InformacaoRegistro informacoesTransacao = informacoes[i];
+                        if (informacoesTransacao.Chave != string.Empty)
+                        {
+                            TransacaoElo transacaoElo = new TransacaoElo();
+                            transacaoElo.NomeArquivo = arquivo.NomeArquivo;
+                            transacaoElo.Id_Incoming = LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now);
+                            transacaoElo.FlagTransacaoInternacional = false; //as transacoes internacionais sao processadas em arquivo especifico
+                            DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor));
+                            InserirBufferElo(transacaoElo, arquivo.IdEmissor);
+                            transacaoElo = null;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        informacoes[i].FlagErro = true;
+                        infregDAO.Update(informacoes[i]);
+                    }
+              
+                    
+
+                }
+
+                PersistirBufferElo(arquivo.IdEmissor);
+            
         }
 
 
-        private void InserirBufferElo(TransacaoElo transacao, int idEmissor)
-        {
-            if (bufferElo.Count < Constantes.BUFFER_LIMIT)
-                bufferElo.Add(transacao);
-            else
-            {
-                AtualizarBufferElo(idEmissor);
-                bufferElo.Add(transacao);
-            }
-
-        }
-
-        private void AtualizarBufferElo(int idEmissor)
-        {
-            if(bufferElo.Count > 0)
-            {
-                new TransacoesEloDAO(idEmissor).Salvar(bufferElo);
-                bufferElo.Clear();
-            }
-        
-        }
+  
 
         #region Métodos Auxiliares
 
@@ -199,7 +194,9 @@ namespace CDT.Importacao.Data.Business.Import
             string tipoTransacao = TipoTransacaoLinha(linha);
 
             transacao.CodigoTransacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DA TRANSAÇÃO")).PosFim);
-            transacao.TE = int.Parse(tipoTransacao);
+            transacao.TE = tipoTransacao;
+           
+            
 
             if (tipoTransacao.Equals(Constantes.TE01) || tipoTransacao.Equals(Constantes.TE05) || tipoTransacao.Equals(Constantes.TE06) || tipoTransacao.Equals(Constantes.TE15) ||
                 tipoTransacao.Equals(Constantes.TE16) || tipoTransacao.Equals(Constantes.TE25) || tipoTransacao.Equals(Constantes.TE26) || tipoTransacao.Equals(Constantes.TE35) ||
@@ -222,8 +219,14 @@ namespace CDT.Importacao.Data.Business.Import
                         transacao.DataProcessamento = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO/APRESENTAÇÃO DO CHARGEBACK")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO/APRESENTAÇÃO DO CHARGEBACK")).PosFim));
                         break;
                     case "1":
+                        transacao.IndicadorMeio = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosFim);
                         transacao.NumeroParcelas = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosFim);
                         transacao.ParcelaPedida = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosFim));
+                        break;
+                    case "2":
+                        string tipoOperacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("TIPO DE OPERAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("TIPO DE OPERAÇÃO")).PosFim);
+                        transacao.IdTipoOperacao = tipoOperacao.Trim().Equals(string.Empty) ? 0 : int.Parse(tipoOperacao);
+                        transacao.FlagOriginal = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO DA TRANSAÇÃO ORIGINAL")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO DA TRANSAÇÃO ORIGINAL")).PosFim).Equals("00000000");
                         break;
                     default:
                         break;
@@ -330,7 +333,7 @@ namespace CDT.Importacao.Data.Business.Import
                
              }
 
-            RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+            RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult)});
          }
 
       
@@ -393,9 +396,31 @@ namespace CDT.Importacao.Data.Business.Import
 
         }
 
+        private void InserirBufferElo(TransacaoElo transacao, int idEmissor)
+        {
+            if (bufferElo.Count < Constantes.BUFFER_LIMIT)
+                bufferElo.Add(transacao);
+            else
+            {
+                PersistirBufferElo(idEmissor);
+                bufferElo.Add(transacao);
+            }
+
+        }
+
+        private void PersistirBufferElo(int idEmissor)
+        {
+            if (bufferElo.Count > 0)
+            {
+                new TransacoesEloDAO(idEmissor).Salvar(bufferElo);
+                bufferElo.Clear();
+            }
+
+        }
 
 
-        public void PersistirLinhas()
+
+        public void PersistirBufferInformacoes()
         {
       
             List<List<InformacaoRegistro>> partitions = LAB5Utils.ListUtils<InformacaoRegistro>.Partition(5000, buffer);
@@ -407,6 +432,56 @@ namespace CDT.Importacao.Data.Business.Import
                 new InformacaoRegistroDAO().Salvar(infos);
                 infos = null;
             }
+        }
+
+        public void AtualizarBufferInformacoes()
+        {
+
+            List<List<InformacaoRegistro>> partitions = LAB5Utils.ListUtils<InformacaoRegistro>.Partition(5000, buffer);
+            List<InformacaoRegistro> infos;
+            foreach (List<InformacaoRegistro> laux in partitions)
+            {
+                infos = new List<InformacaoRegistro>();
+                laux.ForEach(l => infos.Add(new InformacaoRegistro(l.IdRegistro, l.IdArquivo, l.Chave, l.Valor,l.FlagErro)));
+                new InformacaoRegistroDAO().Update(infos);
+                infos = null;
+            }
+        }
+
+        public void MontarArquivoRetorno(int idArquivo)
+        {
+
+            Arquivo incoming = new ArquivoDAO().Buscar(idArquivo);
+            InformacaoRegistro headerIncoming, trailerIncoming, detailOutgoing;
+            Registro regHeader = new RegistroDAO().RegistroPorArquivo(idArquivo).Where(r => r.FK_TipoRegistro.NomeTipoRegistro.ToLower().Equals("header")).First(); 
+            headerIncoming  = infRegistroDAO.BuscarHeaderArquivo(idArquivo);
+            trailerIncoming = infRegistroDAO.BuscarTrailerArquivo(idArquivo);
+            string detail = new string('0',168);
+
+            string headerReal = LAB5Utils.StringUtils.Unzip(headerIncoming.Valor);
+
+            headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now), regHeader.Campos.Where(c => c.NomeCampo.Equals("DATA DE RETORNO DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("DATA DE RETORNO DO ARQUIVO")).First().PosFim);
+            headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, LAB5Utils.DataUtils.RetornaHoraHHMMSS(DateTime.Now), regHeader.Campos.Where(c => c.NomeCampo.Equals("HORA DE RETORNO DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("HORA DE RETORNO DO ARQUIVO")).First().PosFim);
+            headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, "2", regHeader.Campos.Where(c => c.NomeCampo.Equals("INDICADOR DE ROTA DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("INDICADOR DE ROTA DO ARQUIVO")).First().PosFim);
+
+            headerIncoming.Valor = LAB5Utils.StringUtils.Zip(headerReal);
+
+            infRegistroDAO.Salvar(headerIncoming);
+
+            List<Campo> camposDetail = new RegistroDAO().RegistroPorArquivo(idArquivo).Where(r => r.ChaveRegistro.Equals("REGISTRO_E44_0")).First().Campos.OrderBy(c=>c.PosInicio).ToList();
+
+            foreach(Campo campo in camposDetail)
+            {
+
+            }
+
+
+
+        }
+
+        public void MontarInformacao(Campo campo, string valor, ref string destino)
+        {
+            LAB5Utils.ArquivoUtils.AlterarInformacao(destino, valor, campo.PosInicio, campo.PosFim);
         }
 
         #endregion

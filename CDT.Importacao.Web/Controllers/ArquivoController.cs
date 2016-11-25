@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-    public class ArquivoController : Controller
+    public class ArquivoController : BaseController
     {
         ArquivoDAO _dao = new ArquivoDAO();
         // GET: Arquivo
@@ -36,6 +36,7 @@ namespace CDT.Importacao.Web.Controllers
             }
             catch (Exception ex)
             {
+                Alert(ex.Message);
                 return View("Cadastro", arquivo);
             }
         }
@@ -55,6 +56,7 @@ namespace CDT.Importacao.Web.Controllers
 
             }catch(Exception ex)
             {
+                Alert(ex.Message);
                 return View("Index");
             }
         }

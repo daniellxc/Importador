@@ -57,7 +57,31 @@ namespace CDT.Importacao.Data.Business.Import
             }
         }
 
-        #region Métodos
+        public void Conciliar(Arquivo arquivo)
+        {
+            InformacaoRegistroDAO infregDAO = new InformacaoRegistroDAO();
+            RegistroDAO regDAO = new RegistroDAO();
+            List<InformacaoRegistro> informacoes = infregDAO.BuscarDetalhesComprimidosArquivo(arquivo.IdArquivo);
+        
+
+            int limit = informacoes.Count();
+
+            for (int i = 0; i < limit; i++)
+
+            {
+                InformacaoRegistro informacoesTransacao = informacoes[i];
+                if (informacoesTransacao.Chave != string.Empty)
+                {
+                    TransacaoElo transacaoElo = new TransacaoElo();
+                    DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor), arquivo.IdLayout);
+                    InserirBufferElo(transacaoElo, arquivo.IdEmissor);
+                    transacaoElo = null;
+                }
+            }
+            AtualizarBufferElo(arquivo.IdEmissor);
+        }
+
+        #region Métodos Apoio
         private void ImportarInformacaoRegisto(Registro registro, int idArquivo, byte[] linha, string chave)
         {
             new InformacaoRegistroDAO().Salvar(new InformacaoRegistro(registro.IdRegistro, idArquivo, chave, linha));
@@ -98,6 +122,7 @@ namespace CDT.Importacao.Data.Business.Import
 
         private void ProcessarGrupoCartoes(Arquivo arquivo, ref StreamReader reader, string linha)
         {
+            bool temConversaoMoeda = false;
             string tRegistro = TipoRegistroLinha(linha);
             RegistrarInformacaoBuffer(registroDAO.Buscar(tRegistro,arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
             linha = reader.ReadLine();
@@ -106,25 +131,28 @@ namespace CDT.Importacao.Data.Business.Import
                 switch (TipoRegistroLinha(linha))
                 {
                     case Constantes.LiquidacaoInternacionalElo.DETALHE_SEM_SDR:
+                        temConversaoMoeda = TemConversaoMoeda(linha);
+                        if (temConversaoMoeda)
+                            linha += ComporLinha(reader.ReadLine());
                         RegistrarInformacaoBuffer(registroDAO.Buscar("0506", arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
                         linha = reader.ReadLine();
                         break;
                     case Constantes.LiquidacaoInternacionalElo.DETALHE_COM_SDR:
-                        RegistrarInformacaoBuffer(registroDAO.Buscar("0506", arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
-                        linha = reader.ReadLine();
-                        tRegistro = TipoRegistroLinha(linha);
+                        temConversaoMoeda = TemConversaoMoeda(linha); 
+                        string linhaSDR = reader.ReadLine();
+                        tRegistro = TipoRegistroLinha(linhaSDR);
                         if (tRegistro.Equals(Constantes.LiquidacaoInternacionalElo.SDR))
                         {
-                            RegistrarInformacaoBuffer(registroDAO.Buscar(tRegistro, arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
-                            linha = reader.ReadLine();
+                            linha += ComporLinha(linhaSDR);
                         }
                         else
                             throw new Exception("Registro inesperado. Confira a estrutura do arquivo.");
-                        break;
-                    case Constantes.LiquidacaoInternacionalElo.CONVERSAO_MOEDAS:
-                        RegistrarInformacaoBuffer(registroDAO.Buscar(Constantes.LiquidacaoInternacionalElo.CONVERSAO_MOEDAS, arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
+                        if (temConversaoMoeda)
+                            linha += ComporLinha(reader.ReadLine());
+                        RegistrarInformacaoBuffer(registroDAO.Buscar("0506", arquivo.IdLayout).IdRegistro, arquivo.IdArquivo, linha);
                         linha = reader.ReadLine();
                         break;
+                    
                     default:
                         break;
                 }
@@ -168,6 +196,81 @@ namespace CDT.Importacao.Data.Business.Import
                            ? ArquivoUtils.ExtrairInformacao(dados, 32, 41) : ""; 
 
             buffer.Add( new InformacaoRegistro(idRegistro, idArquivo, chave, StringUtils.Zip(dados)));
+        }
+
+
+        private string ComporLinha(string linha)
+        {
+            return Constantes.SPLITTER_LINHA + linha;
+        }
+
+        public void  DecomporLinha(ref TransacaoElo transacaoElo, string linha, int idLayout)
+        {
+            string tRegistro = "";
+            string[] registros = StringUtils.Split(Constantes.SPLITTER_LINHA, linha);
+            foreach(string reg in registros)
+            {
+                tRegistro = TipoRegistroLinha(reg);
+                if(tRegistro.Equals(Constantes.LiquidacaoInternacionalElo.DETALHE_COM_SDR) || tRegistro.Equals(Constantes.LiquidacaoInternacionalElo.DETALHE_SEM_SDR))
+                {
+                    InstanciarObjetoTransacao(ref transacaoElo, registroDAO.Buscar("0506", idLayout), reg);
+
+                }
+            }
+        }
+
+        private void InstanciarObjetoTransacao(ref TransacaoElo transacao, Registro registro, string linha)
+        {
+            List<Campo> campos = registro.Campos.Where(x => x.FlagRelevante == true).ToList();
+            transacao.FlagTransacaoInternacional = true;
+            switch (registro.ChaveRegistro)
+            {
+                case "0506":
+                    transacao.AcquireReferenceNumber = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NUMERO DE REFERENCIA DO ADQUIRENTE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NUMERO DE REFERENCIA DO ADQUIRENTE")).PosFim);
+                    transacao.DataProcessamento = DataUtils.RetornaData(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA ORIGINAL DE POSTAGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA ORIGINAL DE POSTAGEM")).PosFim));
+                    transacao.DataTransacao = DataUtils.RetornaData(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA ORIGINAL DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA ORIGINAL DA TRANSACAO")).PosFim));
+                    transacao.Cartao = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NUMERO CARTAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NUMERO CARTAO")).PosFim);
+                    transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosFim)));
+                    transacao.ValorOrigem = Decimal.Parse(StringUtil.StringToMoney(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosFim)));
+                    transacao.NomeEstabelecimento = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NOME DO EC OU DESCRICAO DO AJUSTE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NOME DO EC OU DESCRICAO DO AJUSTE")).PosFim);
+                    transacao.CodigoMCC = int.Parse(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MCC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MCC")).PosFim));
+                    transacao.IdentificacaoTransacao = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NUMERO DO ID DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NUMERO DO ID DA TRANSACAO")).PosFim);
+                    transacao.CodigoTransacao = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CODIGO DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CODIGO DA TRANSACAO")).PosFim);
+                    transacao.MensagemTexto = "TRANSACAO_INTERNACIONAL";
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+
+        private bool TemConversaoMoeda(string linha)
+        {
+            return ArquivoUtils.ExtrairInformacao(linha, 59, 59).Equals("Y");
+        }
+
+
+        private void InserirBufferElo(TransacaoElo transacao, int idEmissor)
+        {
+            if (bufferElo.Count < Constantes.BUFFER_LIMIT)
+                bufferElo.Add(transacao);
+            else
+            {
+                AtualizarBufferElo(idEmissor);
+                bufferElo.Add(transacao);
+            }
+
+        }
+
+        private void AtualizarBufferElo(int idEmissor)
+        {
+            if (bufferElo.Count > 0)
+            {
+                new TransacoesEloDAO(idEmissor).Salvar(bufferElo);
+                bufferElo.Clear();
+            }
+
         }
 
         #endregion

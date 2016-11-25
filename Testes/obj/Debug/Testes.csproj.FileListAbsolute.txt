@@ -38,7 +38,6 @@ C:\Repositorios\Importador\Testes\bin\Debug\EntityFramework.dll
 C:\Repositorios\Importador\Testes\bin\Debug\EntityFramework.MappingAPI.dll
 C:\Repositorios\Importador\Testes\bin\Debug\EntityFramework.SqlServer.dll
 C:\Repositorios\Importador\Testes\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
-C:\Repositorios\Importador\Testes\bin\Debug\Z.EntityFramework.Extensions.dll
 C:\Repositorios\Importador\Testes\bin\Debug\Microsoft.Owin.dll
 C:\Repositorios\Importador\Testes\bin\Debug\System.Web.Optimization.dll
 C:\Repositorios\Importador\Testes\bin\Debug\System.Web.Mvc.dll
@@ -81,3 +80,12 @@ C:\Repositorios\Importador\Testes\bin\Debug\PagedList.EntityFramework.dll
 C:\Repositorios\Importador\Testes\bin\Debug\PagedList.xml
 C:\Repositorios\Importador\Testes\bin\Debug\PagedList.EntityFramework.pdb
 C:\Repositorios\Importador\Testes\bin\Debug\PagedList.EntityFramework.xml
+C:\Repositorios\Importador\Testes\bin\Debug\Quartz.dll
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.Core.dll
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.dll
+C:\Repositorios\Importador\Testes\bin\Debug\Quartz.pdb
+C:\Repositorios\Importador\Testes\bin\Debug\Quartz.xml
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.Core.pdb
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.Core.xml
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.pdb
+C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.xml
