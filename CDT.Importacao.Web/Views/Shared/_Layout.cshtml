@@ -15,6 +15,8 @@
 
 </head>
 <body>
+@if (Request.IsAuthenticated)
+{
     <div class="navbar navbar-inverse navbar-fixed-top">
         
         <div class="container">
@@ -27,21 +29,24 @@
               
                 @Html.ActionLink("Importador CDT", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Layouts", "Index", "Layout")</li>
-                    <li>@Html.ActionLink("Registros", "Index", "Registro")</li>
-                    <li>@Html.ActionLink("Campos", "Index", "Campo")</li>
-                    <li>@Html.ActionLink("Subcampos", "Index", "Subcampo")</li>
-                    <li>@Html.ActionLink("Arquivos", "Index", "Arquivo")</li>
-                </ul>
-                @*@Html.Partial("_LoginPartial")*@
-            </div>
+                     <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Layouts", "Index", "Layout")</li>
+                        <li>@Html.ActionLink("Registros", "Index", "Registro")</li>
+                        <li>@Html.ActionLink("Campos", "Index", "Campo")</li>
+                        <li>@Html.ActionLink("Subcampos", "Index", "Subcampo")</li>
+                        <li>@Html.ActionLink("Arquivos", "Index", "Arquivo")</li>
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+            
+           
         </div>
     </div>
+}
     <div class="container body-content">
         <br />
-      @if(ViewBag.Erro != "")
+      @if(ViewBag.Erro != "" && ViewBag.Erro != null)
       {
           @Html.Partial("_partialMessage")
       }

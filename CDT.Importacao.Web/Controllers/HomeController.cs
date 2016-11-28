@@ -7,14 +7,14 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
-   
+   [Authorize]
     public class HomeController : BaseController
     {
         public ActionResult Index()
         {
             /*INICIANDO SCHEDULERS*/
             // ConciliacaoJobScheduler.Start();
-            Alert("Testando envio de mensagem.");
+            
             return View();
         }
 

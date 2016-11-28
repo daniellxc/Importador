@@ -33,3 +33,4 @@ C:\Repositorios\Importador\CDT.Importacao.Data\bin\Debug\Quartz.pdb
 C:\Repositorios\Importador\CDT.Importacao.Data\bin\Debug\Quartz.xml
 C:\Repositorios\Importador\CDT.Importacao.Data\bin\Debug\EntityFramework.Extended.dll
 C:\Repositorios\Importador\CDT.Importacao.Data\bin\Debug\EntityFramework.Extended.xml
+C:\Repositorios\Importador\CDT.Importacao.Data\obj\Debug\CDT.Importacao.Data.csprojResolveAssemblyReference.cache

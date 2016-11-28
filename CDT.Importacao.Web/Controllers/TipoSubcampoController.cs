@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
+    [Authorize]
     public class TipoSubcampoController : BaseController
     {
         private TipoSubcampoDAO _dao = new TipoSubcampoDAO();

@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
+    [Authorize]
     public class ArquivoController : BaseController
     {
         ArquivoDAO _dao = new ArquivoDAO();

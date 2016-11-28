@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
+    [Authorize]
     public class CampoController : BaseController
     {
         CampoDAO _dao = new CampoDAO();

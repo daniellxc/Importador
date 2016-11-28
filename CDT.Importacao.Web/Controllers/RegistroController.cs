@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace CDT.Importacao.Web.Controllers
 {
+    [Authorize]
     public class RegistroController : BaseController
     {
         RegistroDAO _dao = new RegistroDAO();
