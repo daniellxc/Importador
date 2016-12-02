@@ -174,7 +174,7 @@ namespace Testes
         public void TestarBulkUpdate()
         {
 
-            Usuario user = new UsuarioDAO().Buscar("admin", "cdt@123");
+            Arquivo a = new ArquivoBO(new Arquivo()).GerarArquivo(3, 8);
            
         }
 

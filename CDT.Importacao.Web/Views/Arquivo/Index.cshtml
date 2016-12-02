@@ -7,8 +7,58 @@
 @Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
 
 
-@Html.Partial("_partialArquivos")
+@Html.Grid(new ArquivoDAO().ListarTodos().OrderByDescending(a => a.IdArquivo)).Columns(c =>
+{
+    c.Add(x => x.IdArquivo).Titled("ID");
+    c.Add(x => x.NomeArquivo).Titled("Nome");
+    c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout");
+    c.Add(x => x.DataRegistro.Date).Titled("Data Registro");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => StatusArquivo(d.FK_StatusArquivo)).Titled("Status");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => DataImportacao(d.DataImportacao)).Titled("Data Processamento");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnImportar(d));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdArquivo = d.IdArquivo }));
 
+}
+).EmptyText("Não há registro de importações.").WithPaging(20)
+
+
+@helper DataImportacao(DateTime data)
+{
+
+if (data.Equals(DateTime.Parse("01/01/1900")))
+{
+        <span>---</span>
+}
+else
+{
+        <span>@data</span>
+}
+
+}
+
+@helper StatusArquivo(CDT.Importacao.Data.Model.StatusArquivo status)
+{
+if (status.IdStatusArquivo.Equals(1))
+    {
+            <span class="label label-warning">@status.NomeStatus</span>
+    }
+else if (status.IdStatusArquivo.Equals(2))
+    {
+            <span class="label label-success">@status.NomeStatus</span>
+    }
+else
+    {
+            <span class="label label-danger">@status.NomeStatus</span>
+    }
+}
+
+@helper btnImportar(CDT.Importacao.Data.Model.Arquivo arquivo)
+{
+    if (arquivo.IdStatusArquivo != 2)
+    {
+        @Html.ActionLink("importar", "importar", new { IdArquivo = arquivo.IdArquivo }, new { @onclick = "return Confirm('Deseja realmente importar este arquivo?')" })
+    }
+}
 
 
 

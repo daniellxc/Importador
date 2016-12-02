@@ -14,24 +14,52 @@ namespace CDT.Importacao.Data.Business
     public class ArquivoBO
     {
         Arquivo arquivo;
-        ArquivoDAO _dao = new ArquivoDAO();
+        ArquivoDAO _dao;
+
+        public Arquivo Arquivo
+        {
+            get
+            {
+                return arquivo;
+            }
+
+            set
+            {
+                arquivo = value;
+            }
+        }
 
         public ArquivoBO(int IdArquivo)
         {
-            this.arquivo = _dao.Buscar(IdArquivo);
+            this.Arquivo = _dao.Buscar(IdArquivo);
+            if(_dao == null)
+            {
+                _dao = new ArquivoDAO();
+            }
         }
 
         public ArquivoBO(Arquivo arquivo)
         {
-            this.arquivo = arquivo;
+            this.Arquivo = arquivo;
+            if (_dao == null)
+            {
+                _dao = new ArquivoDAO();
+            }
+        }
+
+        
+
+        public Arquivo BuscarArquivoData(DateTime data)
+        {
+            return _dao.Buscar(data);
         }
 
         public IImportador ObjetoImportador()
         {
-            if (arquivo != null)
+            if (Arquivo != null)
             {
                 Assembly asm = Assembly.Load("CDT.Importacao.Data");
-                Type importadorElo = asm.GetType(arquivo.FK_Layout.ClasseImportadora);
+                Type importadorElo = asm.GetType(Arquivo.FK_Layout.ClasseImportadora);
                 Object imp = Activator.CreateInstance(importadorElo);
                 if (imp != null)
                     return (IImportador)imp;
@@ -42,24 +70,49 @@ namespace CDT.Importacao.Data.Business
             
         }
 
+        public Arquivo GerarArquivo(int idLayout, int idEmissor)
+        {
+            
+            try
+            {
+                if (new LayoutDAO().Buscar(idLayout) == null) throw new Exception("Layout não encontrado.");
+                if (new EmissorDAO().Buscar(idEmissor) == null) throw new Exception("Emissor não encontrado.");
+
+                this.Arquivo = new Arquivo();
+                Arquivo.DataRegistro = DateTime.Now.Date;
+                Arquivo.DataImportacao = DateTime.Parse("01/01/1900");
+                Arquivo.IdEmissor = idEmissor;
+                Arquivo.IdLayout = idLayout;
+                Arquivo.IdStatusArquivo = 1;
+                Arquivo.NomeArquivo = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + "_LQDNACELO.txt";
+                _dao.Salvar(Arquivo);
+                return this.Arquivo;
+            }catch(Exception ex)
+            {
+                throw new Exception("Erro ao gerar arquivo." + ex.Message);
+            }
+            
+        }
+
         private void AlterarStatus(int idStatus)
         {
-            arquivo.IdStatusArquivo = idStatus;
-            _dao.Salvar(arquivo);
+            Arquivo.IdStatusArquivo = idStatus;
+            _dao.Salvar(Arquivo);
         }
 
         public void Importar()
         {
-           
+         
             try
             {
-                if (arquivo.IdStatusArquivo != 2)
+                if (Arquivo.IdStatusArquivo != 2)
                 {
 
-                    ObjetoImportador().Importar(arquivo);
-                    arquivo.IdStatusArquivo = 2;
-                    arquivo.DataImportacao = DateTime.Now;
-                    _dao.Salvar(arquivo);
+                    ObjetoImportador().Importar(Arquivo);
+                    ObjetoImportador().GerarTransacoesEmissor(Arquivo);
+                    Arquivo.IdStatusArquivo = 2;
+                    Arquivo.DataImportacao = DateTime.Now;
+                    _dao.Salvar(Arquivo);
                 }
                 else
                     throw new Exception("Este arquivo já foi processado");
@@ -68,7 +121,7 @@ namespace CDT.Importacao.Data.Business
             }catch(Exception ex)
             {
                 AlterarStatus(3);//erro no processamento
-                throw ex;
+                throw new Exception("Erro ao processar o arquivo." + ex.Message);
             }
         }
 

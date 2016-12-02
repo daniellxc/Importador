@@ -20,13 +20,13 @@ namespace CDT.Importacao.Data.Business.Import
         List<TransacaoElo> bufferElo = new List<TransacaoElo>();
         List<Registro> registrosArquivo = new List<Registro>();
 
-        public void Importar(Arquivo arquivo)
+        public bool Importar(Arquivo arquivo)
         {
             StreamReader sr;
             int countLinha = 0;
             List<Registro> registros = arquivo.FK_Layout.Registros.ToList();
             List<Informacao> informacoes;
-            if (Directory.Exists(arquivo.FK_Layout.DiretorioArquivo))
+            try
             {
                 FileInfo fi = new DirectoryInfo(arquivo.FK_Layout.DiretorioArquivo).GetFiles().Where(f => f.Name.Equals(arquivo.NomeArquivo)).FirstOrDefault();
                 informacoes = new List<Informacao>();
@@ -49,15 +49,25 @@ namespace CDT.Importacao.Data.Business.Import
 
                     PersistirLinhas();
                     ImportarInformacaoRegisto(registros.Where(r => r.FK_TipoRegistro.NomeTipoRegistro.Equals("Trailer")).First(), arquivo.IdArquivo, StringUtil.Zip(copia), "");
-
+                    return true;
                 }
                 else
                     throw new IOException("Não existe arquivo com o nome informado");
-
             }
+            catch (IOException iox)
+            {
+                throw new Exception("Erro ao tentar acessar o arquivo." + iox.Message);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Erro ao processar o arquivo." + ex.Message);
+            }
+               
+
+            
         }
 
-        public void Conciliar(Arquivo arquivo)
+        public bool GerarTransacoesEmissor(Arquivo arquivo)
         {
             InformacaoRegistroDAO infregDAO = new InformacaoRegistroDAO();
             RegistroDAO regDAO = new RegistroDAO();
@@ -65,20 +75,30 @@ namespace CDT.Importacao.Data.Business.Import
         
 
             int limit = informacoes.Count();
-
-            for (int i = 0; i < limit; i++)
-
+            try
             {
-                InformacaoRegistro informacoesTransacao = informacoes[i];
-                if (informacoesTransacao.Chave != string.Empty)
+                for (int i = 0; i < limit; i++)
+
                 {
-                    TransacaoElo transacaoElo = new TransacaoElo();
-                    DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor), arquivo.IdLayout);
-                    InserirBufferElo(transacaoElo, arquivo.IdEmissor);
-                    transacaoElo = null;
+                    InformacaoRegistro informacoesTransacao = informacoes[i];
+                    if (informacoesTransacao.Chave != string.Empty)
+                    {
+                        TransacaoElo transacaoElo = new TransacaoElo();
+                        transacaoElo.NomeArquivo = arquivo.NomeArquivo;
+                        transacaoElo.Id_Incoming = arquivo.IdArquivo.ToString();
+                        transacaoElo.FlagTransacaoInternacional = true;
+                        DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor), arquivo.IdLayout);
+                        InserirBufferElo(transacaoElo, arquivo.IdEmissor);
+                        transacaoElo = null;
+                    }
                 }
+                AtualizarBufferElo(arquivo.IdEmissor);
+                return true;
+            }catch(Exception ex)
+            {
+                throw new Exception("Erro ao gerar transações na base do emissor." + ex.Message);
             }
-            AtualizarBufferElo(arquivo.IdEmissor);
+            
         }
 
         #region Métodos Apoio

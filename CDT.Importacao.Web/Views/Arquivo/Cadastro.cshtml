@@ -21,7 +21,7 @@
             @Html.ValidationMessageFor(x => x.IdEmissor)
 
             @Html.Label("Data de Registro")
-            @Html.TextBox("DataRegistro",DateTime.Now.ToString(), new { @class = "form-control calendario" })
+            @Html.TextBox("DataRegistro",DateTime.Now.Date, new { @class = "form-control calendario" })
             @Html.ValidationMessageFor(x=>x.DataRegistro)
 
 

@@ -22,15 +22,15 @@ namespace CDT.Importacao.Data.Business.Import
         List<Registro> registrosArquivo = new List<Registro>();
 
 
-        public void Importar(Arquivo arquivo)
+        public bool Importar(Arquivo arquivo)
         {
             
             StreamReader sr;
             int countLinha = 0;
             List<Registro> registros = arquivo.FK_Layout.Registros.ToList();
             List<Informacao> informacoes;
-            if (Directory.Exists(arquivo.FK_Layout.DiretorioArquivo))
-            {
+            try {
+            
                 FileInfo fi = new DirectoryInfo(arquivo.FK_Layout.DiretorioArquivo).GetFiles().Where(f=>f.Name.Equals(arquivo.NomeArquivo)).FirstOrDefault();
                 informacoes = new List<Informacao>();
                 if (fi != null)
@@ -52,17 +52,23 @@ namespace CDT.Importacao.Data.Business.Import
 
                     PersistirBufferInformacoes();
                     ImportarInformacaoRegisto(registros.Where(r => r.FK_TipoRegistro.NomeTipoRegistro.Equals("Trailer")).First(), arquivo.IdArquivo, StringUtil.Zip(copia),"" );
-                    
+                    return true;
                 }
                 else
-                    throw new IOException("Não existe arquivo com o nome informado");
-                
+                    throw new IOException("Não existe arquivo com o nome informado");         
+            }catch(IOException iox)
+            {
+                throw new Exception("Erro ao tentar acessar o arquivo." + iox.Message);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Erro na importação." + ex.Message);
             }
            
         }
 
 
-        public void GerarTransacoesEmissor(Arquivo arquivo)
+        public bool GerarTransacoesEmissor(Arquivo arquivo)
         {
             InformacaoRegistroDAO infregDAO = new InformacaoRegistroDAO();
             RegistroDAO regDAO = new RegistroDAO();
@@ -70,7 +76,6 @@ namespace CDT.Importacao.Data.Business.Import
             
             int limit = informacoes.Count();
 
-     
                 for (int i = 0; i < limit; i++)
                 {
                     try
@@ -80,24 +85,25 @@ namespace CDT.Importacao.Data.Business.Import
                         {
                             TransacaoElo transacaoElo = new TransacaoElo();
                             transacaoElo.NomeArquivo = arquivo.NomeArquivo;
-                            transacaoElo.Id_Incoming = LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now);
+                            transacaoElo.Id_Incoming = arquivo.IdArquivo.ToString();
                             transacaoElo.FlagTransacaoInternacional = false; //as transacoes internacionais sao processadas em arquivo especifico
                             DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor));
                             InserirBufferElo(transacaoElo, arquivo.IdEmissor);
                             transacaoElo = null;
                         }
+                    
                     }
                     catch(Exception ex)
                     {
                         informacoes[i].FlagErro = true;
                         infregDAO.Update(informacoes[i]);
+                        throw new Exception("Erro ao gerar transações na base do emissor." + ex.Message);
                     }
-              
                     
-
                 }
 
-                PersistirBufferElo(arquivo.IdEmissor);
+             PersistirBufferElo(arquivo.IdEmissor);
+            return true;
             
         }
 

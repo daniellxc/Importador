@@ -11,6 +11,7 @@ namespace CDT.Importacao.Data.Business.Import
     {
         
 
-         void Importar(Arquivo arquivo);
+        bool Importar(Arquivo arquivo);
+        bool GerarTransacoesEmissor(Arquivo arquivo);
     }
 }

@@ -32,7 +32,9 @@ namespace CDT.Importacao.Data.Model
         public AbstractCrudDao(IContext context)
         {
             _context = context;
-            contextoConcreto = _context.GetContext();
+             
+         contextoConcreto = _context.GetContext();
+               
         }
       
 
@@ -92,16 +94,16 @@ namespace CDT.Importacao.Data.Model
         }
 
 
-        //public void Update(T updateEntity, object key)
-        //{
-        //    var original = this.Get(key);
-        //    if (original != null)
-        //    {
-        //        contextoConcreto.Entry(original).CurrentValues.SetValues(updateEntity);
-        //        contextoConcreto.SaveChanges();
-        //    }
+        public void Update(T updateEntity, object key)
+        {
+            var original = this.Get(key);
+            if (original != null)
+            {
+                contextoConcreto.Entry(original).CurrentValues.SetValues(updateEntity);
+                contextoConcreto.SaveChanges();
+            }
 
-        //}
+        }
 
         public virtual void Update(T entity)
         {

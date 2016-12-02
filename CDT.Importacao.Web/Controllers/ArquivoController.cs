@@ -52,7 +52,7 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                  new ArquivoBO(_dao.Buscar(IdArquivo)).Importar();
-
+                Alert("Arquivo importado com sucesso.");
                 return View("Index");
 
             }catch(Exception ex)

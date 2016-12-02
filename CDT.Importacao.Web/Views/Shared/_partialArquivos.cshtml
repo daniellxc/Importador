@@ -13,8 +13,7 @@
     c.Add(x => x.DataRegistro).Titled("Data Registro");
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => StatusArquivo(d.FK_StatusArquivo)).Titled("Status");
     c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => DataImportacao(d.DataImportacao)).Titled("Data Processamento");
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnImportar(d));
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdArquivo = d.IdArquivo }));
+   
 
 }
 ).EmptyText("Não há registro de importações.").WithPaging(20)

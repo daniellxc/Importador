@@ -1,6 +1,7 @@
 ﻿using CDT.Importacao.Data.Model;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                     _dao.CommitChanges();
                 }else
                 {
-                    _dao.Update(arquivo);
+                    _dao.Update(arquivo, arquivo.IdArquivo);
                 }
 
             }catch(Exception ex)
@@ -53,6 +54,12 @@ namespace CDT.Importacao.Data.DAL.Classes
         public Arquivo Buscar(int id)
         {
             return _dao.Get(id);
+        }
+
+        public Arquivo Buscar(DateTime dataRegistro)
+        {
+            DateTime data = DateTime.Parse(dataRegistro.ToShortDateString());
+           return _dao.Find(x => x.DataRegistro.Equals(dataRegistro)).FirstOrDefault();
         }
     }
 }
