@@ -1,6 +1,7 @@
 ﻿
 using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
+using LAB5;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,15 +38,17 @@ namespace CDT.Importacao.Web.Controllers
         public ActionResult Salvar(Campo campo)
         {
             if (!ModelState.IsValid) return View("Cadastro", campo);
-
+            string acao = campo.IdCampo == 0 ? "Salvar campo: " : "Editar campo: ";
             try
             {
                 _dao.Salvar(campo);
+                LogINFO(this.ToString(), acao + LAB5Utils.ReflectionUtils.GetObjectDescription(campo));
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 Alert(ex.Message);
+                LogWARN(this.ToString(), acao + LAB5Utils.ReflectionUtils.GetObjectDescription(campo) + ex.Message);
                 return View("Cadastro", campo);
             }
         }
@@ -63,15 +66,18 @@ namespace CDT.Importacao.Web.Controllers
 
         public ActionResult Excluir(int IdCampo)
         {
+            Campo campo = _dao.Buscar(IdCampo);
             try
             {
                 _dao.Excluir(IdCampo);
+                LogINFO(this.ToString(), "Excluir campo: " + LAB5Utils.ReflectionUtils.GetObjectDescription(campo));
                 return RedirectToAction("Index");
 
             }
             catch (Exception ex)
             {
                 Alert(ex.Message);
+                LogWARN(this.ToString(), "Excluir campo: " + LAB5Utils.ReflectionUtils.GetObjectDescription(campo) + ex.Message);
                 ViewBag.Erro = ex.Message;
             }
             return View("Index");

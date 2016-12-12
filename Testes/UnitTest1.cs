@@ -13,6 +13,8 @@ using CDT.Importacao.Data.Utils;
 using CDT.Importacao.Data.Model.Emissores;
 using PagedList;
 using CDT.Importacao.Data.Business;
+using CDT.Importacao.Data.Utils.Quartz.Schedulers;
+using CDT.Importacao.Data.Utils.Quartz.Jobs;
 
 namespace Testes
 {
@@ -174,8 +176,14 @@ namespace Testes
         public void TestarBulkUpdate()
         {
 
-            Arquivo a = new ArquivoBO(new Arquivo()).GerarArquivo(3, 8);
-           
+            Agendamento a = new AgendamentoDAO().Buscar(2);
+
+            new AgendamentoBO().IniciarAgendamento(a);
+
+            CDTScheduler.NextExecutionTime("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
+
+            CDTScheduler.DeleteJob("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
+
         }
 
         #region Arquivo

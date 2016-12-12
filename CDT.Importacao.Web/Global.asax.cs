@@ -1,4 +1,5 @@
-﻿using CDT.Importacao.Data.Utils.Quartz.Schedulers;
+﻿using CDT.Importacao.Data.Business;
+using CDT.Importacao.Data.Utils.Quartz.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace CDT.Importacao.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
+            new AgendamentoBO().IniciarAgendamentosAtivos();
           
         }
     }

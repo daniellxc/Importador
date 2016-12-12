@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -248,6 +249,48 @@ namespace LAB5
                 tdes.Clear();
                 //return the Clear decrypted TEXT
                 return UTF8Encoding.UTF8.GetString(resultArray);
+            }
+        }
+
+
+        public class ReflectionUtils
+        {
+            public static List<Type> GetTypes(string assemblyName,string namespaceName)
+            {
+                try
+                {
+                    Assembly asm = Assembly.Load(assemblyName);
+                    var classes = asm.GetTypes().Where(p=>p.Namespace ==namespaceName).ToList();
+                    return classes;
+                }
+                catch(Exception ex)
+                {
+                    return null;
+                }
+               
+            }
+
+            public static object TypeActivator(string assemblyname, string fullClassName)
+            {
+                Assembly asm = Assembly.Load(assemblyname);
+                Type type = asm.GetType(fullClassName);
+
+                Object imp = Activator.CreateInstance(type);
+                if (imp != null)
+                    return imp;
+                return null;
+            }
+
+            public static string GetObjectDescription(Object entity)
+            {
+                string dados = "";
+
+                foreach (PropertyInfo pi in entity.GetType().GetProperties())
+                {
+                    dados += pi.Name + ":" + Convert.ToString(pi.GetValue(entity, null)) + "|";
+                }
+
+                return dados;
             }
         }
     }

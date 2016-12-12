@@ -1,6 +1,7 @@
 ﻿using CDT.Importacao.Data.Business;
 using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
+using LAB5;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,16 +29,19 @@ namespace CDT.Importacao.Web.Controllers
         {
             if (!ModelState.IsValid) return View("Cadastro", arquivo);
 
+            string acao = arquivo.IdArquivo == 0 ? "Salvar arquivo" : "Editar arquivo";
             try
             {
                 arquivo.DataImportacao = DateTime.Parse("01/01/1900");
                 arquivo.IdStatusArquivo = 1;
+                LogINFO(this.ToString(), acao + LAB5Utils.ReflectionUtils.GetObjectDescription(arquivo));
                 _dao.Salvar(arquivo);
                 return View("Index");
             }
             catch (Exception ex)
             {
                 Alert(ex.Message);
+                LogWARN(this.ToString(), acao + LAB5Utils.ReflectionUtils.GetObjectDescription(arquivo) + ex.Message);
                 return View("Cadastro", arquivo);
             }
         }
@@ -49,15 +53,19 @@ namespace CDT.Importacao.Web.Controllers
 
         public ActionResult Importar(int IdArquivo)
         {
+            Arquivo arq = _dao.Buscar(IdArquivo);
             try
             {
-                 new ArquivoBO(_dao.Buscar(IdArquivo)).Importar();
+                
+                 new ArquivoBO(arq).Importar();
                 Alert("Arquivo importado com sucesso.");
+                LogINFO(this.ToString(), "Importar arquivo:" + LAB5Utils.ReflectionUtils.GetObjectDescription(arq));
                 return View("Index");
 
             }catch(Exception ex)
             {
                 Alert(ex.Message);
+                LogWARN(this.ToString(), "Erro ao importar arquivo: " + LAB5Utils.ReflectionUtils.GetObjectDescription(arq) + ex.Message);
                 return View("Index");
             }
         }

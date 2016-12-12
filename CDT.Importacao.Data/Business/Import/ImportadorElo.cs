@@ -85,7 +85,7 @@ namespace CDT.Importacao.Data.Business.Import
                         {
                             TransacaoElo transacaoElo = new TransacaoElo();
                             transacaoElo.NomeArquivo = arquivo.NomeArquivo;
-                            transacaoElo.Id_Incoming = arquivo.IdArquivo.ToString();
+                            transacaoElo.Id_Incoming = informacoes[i].IdInformacaoRegistro;
                             transacaoElo.FlagTransacaoInternacional = false; //as transacoes internacionais sao processadas em arquivo especifico
                             DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor));
                             InserirBufferElo(transacaoElo, arquivo.IdEmissor);

@@ -17,11 +17,13 @@ namespace CDT.Importacao.Data.Model
     {
 
         #region DBSets
+        public DbSet<Agendamento> Agendamentos { get; set; }
         public DbSet<Arquivo> Arquivos { get; set; }
         public DbSet<Campo> Campos { get; set; }
         public DbSet<Informacao> Informacao { get; set; }
         public DbSet<InformacaoRegistro> InformacoesRegistro { get; set; }
         public DbSet<Layout> Layouts { get; set; }
+        public DbSet<Log> Logs { get; set; }
         public DbSet<Registro> Registros { get; set; }
         public DbSet<Subcampo> Subcampos { get; set; }
         public DbSet<TipoDado> TiposDado { get; set; }

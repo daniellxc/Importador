@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\AgendamentoBO.cs" />
     <Compile Include="Business\ArquivoBO.cs" />
     <Compile Include="Business\ArquivoRetornoElo.cs" />
     <Compile Include="Business\EmissorBO.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Business\Import\ImportadorElo.cs" />
     <Compile Include="Business\Import\ImportadorInternacionalElo.cs" />
     <Compile Include="DAL\AbstractCrudDao.cs" />
+    <Compile Include="DAL\Classes\AgendamentoDAO.cs" />
     <Compile Include="DAL\Classes\ArquivoDAO.cs" />
     <Compile Include="DAL\Classes\CampoDAO.cs" />
     <Compile Include="DAL\Classes\EmissorDAO.cs" />
@@ -95,6 +97,8 @@
     <Compile Include="DAL\ContextExtensions.cs" />
     <Compile Include="DAL\ContextoEmissor.cs" />
     <Compile Include="DAL\IContext.cs" />
+    <Compile Include="DAL\LogDAO.cs" />
+    <Compile Include="Model\Agendamento.cs" />
     <Compile Include="Model\Emissor.cs" />
     <Compile Include="Model\Emissores\TransacaoElo.cs" />
     <Compile Include="Model\InformacaoAux.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Model\Campo.cs" />
     <Compile Include="Model\Informacao.cs" />
     <Compile Include="Model\Layout.cs" />
+    <Compile Include="Model\Log.cs" />
     <Compile Include="Model\Registro.cs" />
     <Compile Include="Model\StatusArquivo.cs" />
     <Compile Include="Model\Subcampo.cs" />
@@ -118,10 +123,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Constantes.cs" />
     <Compile Include="Utils\LAB5Utils.cs" />
+    <Compile Include="Utils\Log\Logger.cs" />
+    <Compile Include="Utils\Quartz\CDTJob.cs" />
     <Compile Include="Utils\Quartz\Jobs\LiquidacaoNacionalEloJob.cs" />
     <Compile Include="Utils\Quartz\Schedulers\AbstractScheduler.cs" />
     <Compile Include="Utils\Quartz\Schedulers\CDTScheduler.cs" />
-    <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="Utils\StringUtil.cs" />
   </ItemGroup>
   <ItemGroup>

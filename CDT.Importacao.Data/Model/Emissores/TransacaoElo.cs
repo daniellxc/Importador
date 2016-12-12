@@ -56,7 +56,7 @@ namespace CDT.Importacao.Data.Model.Emissores
         public string CodigoTransacao { get; set; }
 
         [Column("Id_Incoming")]
-        public string Id_Incoming { get; set; }
+        public long Id_Incoming { get; set; }
 
         [Column("MensagemTexto")]
         public string MensagemTexto { get; set; }

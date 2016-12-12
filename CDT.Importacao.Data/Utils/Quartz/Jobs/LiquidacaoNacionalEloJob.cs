@@ -1,6 +1,8 @@
 ﻿using CDT.Importacao.Data.Business;
 using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
+using CDT.Importacao.Data.Utils.Log;
+using CDT.Importacao.Data.Utils.Quartz.Schedulers;
 using Quartz;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CDT.Importacao.Data.Utils.Quartz.Jobs
 {
-    public class LiquidacaoNacionalEloJob : IJob
+    public class LiquidacaoNacionalEloJob : CDTJob
     {
         public void Execute(IJobExecutionContext context)
         {
@@ -21,25 +23,32 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
             try
             {
                 JobDataMap jobDataMap = context.JobDetail.JobDataMap;
-
+                
                 arquivo = new Arquivo();
                 arquivoBO = new ArquivoBO(arquivo);
                 if ((arquivo = arquivoDAO.Buscar(DateTime.Now.Date)) == null)
                 {
-                    
-                    string idLayout = jobDataMap.GetString("layout");
-                    string idEmissor = jobDataMap.GetString("emissor");
-                    arquivoBO.GerarArquivo(int.Parse(idLayout), int.Parse(idEmissor));
+                    int idEmissor = new EmissorDAO().Buscar("CBSS").IdEmissor;
+                    arquivoBO.GerarArquivo(1, idEmissor);
                 }
                 arquivoBO.Arquivo = arquivo;
                 arquivoBO.Importar();
-
+                Logger.Info(this.ToString(), "Liquidação Internacional Elo. Arquivo importado. ", "QuartzJob");
             }
             catch(Exception ex)
             {
-                //loggar
+                Logger.Warn(this.ToString(), "Erro ao executar importação automática do arquivo de Liquidação Nacional Elo. " + ex.Message, "QuartzJob");
                 throw ex;
             }
         }
+
+        public void Start(string cronExpression)
+        {
+            if (cronExpression != string.Empty)
+                CDTScheduler.StartJobSchedule<LiquidacaoNacionalEloJob>(cronExpression,this.ToString(),"grp_"+this.ToString());
+            else
+                CDTScheduler.StartJobSchedule<LiquidacaoNacionalEloJob>(this.ToString(), "grp_" + this.ToString());
+        }
+
     }
 }
