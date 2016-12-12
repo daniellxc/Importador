@@ -70,7 +70,7 @@ namespace CDT.Importacao.Data.Business
             
         }
 
-        public Arquivo GerarArquivo(int idLayout, int idEmissor)
+        public Arquivo GerarArquivo(int idLayout, int idEmissor, string nomeArquivo)
         {
             
             try
@@ -84,7 +84,7 @@ namespace CDT.Importacao.Data.Business
                 Arquivo.IdEmissor = idEmissor;
                 Arquivo.IdLayout = idLayout;
                 Arquivo.IdStatusArquivo = 1;
-                Arquivo.NomeArquivo = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + "_LQDNACELO.txt";
+                Arquivo.NomeArquivo = nomeArquivo;//DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + "_LQDNACELO.txt";
                 _dao.Salvar(Arquivo);
                 return this.Arquivo;
             }catch(Exception ex)

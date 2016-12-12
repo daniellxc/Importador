@@ -9,6 +9,6 @@ namespace CDT.Importacao.Data.Utils.Quartz
 {
     interface CDTJob : IJob
     {
-        void Start(string cronExpression);
+        void Start(int idAgendamento, string cronExpression);
     }
 }

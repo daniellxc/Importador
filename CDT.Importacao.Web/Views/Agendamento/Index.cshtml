@@ -14,13 +14,13 @@
         @Html.Grid(new AgendamentoDAO().ListarTodos().OrderByDescending(a => a.DataCriacao)).Columns(c =>
    {
        c.Add(x => x.IdAgendamento).Titled("ID");
-       c.Add(x => x.DataCriacao).Titled("Criado em:");
+       c.Add(x => x.DataCriacao).Titled("Dt.Criação");
        c.Add(x => x.JobClass).Titled("Job");
        c.Add(x => x.CronExpression).Titled("Cron Expression");
-       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => Status(new AgendamentoBO().StatusAgendamento("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob"))).Titled("Status");
-       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => NextFireTime(new AgendamentoBO().ProximaExecucao("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob"))).Titled("Próx. Execução");
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => Status(new AgendamentoBO().StatusAgendamento(d.JobClass+d.IdAgendamento.ToString(), "grp_" + d.JobClass + d.IdAgendamento.ToString()))).Titled("Status");
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => NextFireTime(new AgendamentoBO().ProximaExecucao(d.JobClass + d.IdAgendamento.ToString(), "grp_" + d.JobClass + d.IdAgendamento.ToString()))).Titled("Próx. Execução");
        c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("iniciar", "Iniciar", new { IdAgendamento = d.IdAgendamento }));
-       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("parar", "Parar", new { IdAgendamento = d.IdAgendamento, job = "CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", groupJob = "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob" }, new { @onclick = "return confirm('Deseja realmente parar o agendamento?')" }));
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("parar", "Parar", new { IdAgendamento = d.IdAgendamento, job = d.JobClass + d.IdAgendamento.ToString(), groupJob = "grp_" + d.JobClass + d.IdAgendamento.ToString() }, new { @onclick = "return confirm('Deseja realmente parar o agendamento?')" }));
        c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdAgendamento = d.IdAgendamento }));
        c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("excluir", "Excluir", new { IdAgendamento = d.IdAgendamento }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
    }

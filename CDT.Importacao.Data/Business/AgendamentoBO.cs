@@ -46,7 +46,7 @@ namespace CDT.Importacao.Data.Business
             {
                
                 CDTJob job = (CDTJob)LAB5Utils.ReflectionUtils.TypeActivator("CDT.Importacao.Data", agendamento.JobClass);
-                job.Start(agendamento.CronExpression);
+                job.Start(agendamento.IdAgendamento,agendamento.CronExpression);
 
                 return true;
             }

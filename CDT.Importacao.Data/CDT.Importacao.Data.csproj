@@ -125,6 +125,7 @@
     <Compile Include="Utils\LAB5Utils.cs" />
     <Compile Include="Utils\Log\Logger.cs" />
     <Compile Include="Utils\Quartz\CDTJob.cs" />
+    <Compile Include="Utils\Quartz\Jobs\LiquidacaoInternacionalEloJob.cs" />
     <Compile Include="Utils\Quartz\Jobs\LiquidacaoNacionalEloJob.cs" />
     <Compile Include="Utils\Quartz\Schedulers\AbstractScheduler.cs" />
     <Compile Include="Utils\Quartz\Schedulers\CDTScheduler.cs" />
