@@ -253,7 +253,7 @@ namespace CDT.Importacao.Data.Business.Import
                     transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosFim)));
                     transacao.ValorOrigem = Decimal.Parse(StringUtil.StringToMoney(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA TRANSACAO")).PosFim)));
                     transacao.NomeEstabelecimento = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NOME DO EC OU DESCRICAO DO AJUSTE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NOME DO EC OU DESCRICAO DO AJUSTE")).PosFim);
-                    transacao.CodigoMCC = int.Parse(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MCC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MCC")).PosFim));
+                    transacao.CodigoMCC = Int16.Parse(ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MCC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MCC")).PosFim));
                     transacao.IdentificacaoTransacao = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NUMERO DO ID DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NUMERO DO ID DA TRANSACAO")).PosFim);
                     transacao.CodigoTransacao = ArquivoUtils.ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CODIGO DA TRANSACAO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CODIGO DA TRANSACAO")).PosFim);
                     transacao.MensagemTexto = "TRANSACAO_INTERNACIONAL";

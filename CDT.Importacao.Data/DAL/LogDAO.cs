@@ -28,5 +28,15 @@ namespace CDT.Importacao.Data.DAL
 
             }catch (Exception ex) { }
         }
+
+        public void Salvar(List<Log> logs)
+        {
+            try
+            {
+                _dao.InsertData(logs);
+
+            }
+            catch (Exception ex) { }
+        }
     }
 }

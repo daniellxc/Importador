@@ -156,10 +156,13 @@ namespace CDT.Importacao.Data.Model
 
         public static DataTable ConvertToDataTable<T>(IList<T> data)
         {
-            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(T));
+    
+            List<PropertyDescriptor> properties = RemoveNotMapped(TypeDescriptor.GetProperties(typeof(T)));
+            
+
             DataTable table = new DataTable();
             foreach (PropertyDescriptor prop in properties)
-                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                 table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);    
             foreach (T item in data)
             {
                 DataRow row = table.NewRow();
@@ -170,6 +173,28 @@ namespace CDT.Importacao.Data.Model
             return table;
         }
 
+
+        private static  List<PropertyDescriptor> RemoveNotMapped(PropertyDescriptorCollection properties)
+        {
+            bool adiciona = true;
+            List<PropertyDescriptor> propriedades = new List<PropertyDescriptor>();
+            foreach (PropertyDescriptor prop in properties)
+            {
+                foreach (Attribute atr in prop.Attributes)
+                {
+                    if (atr.ToString().Contains("NotMapped"))
+                        adiciona = false;
+                }
+                if (adiciona)
+                    propriedades.Add(prop);
+
+                adiciona = true;
+            }
+               
+
+                        
+            return propriedades;
+        }
        
 
 

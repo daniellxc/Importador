@@ -108,5 +108,10 @@ namespace CDT.Importacao.Web.Controllers
             return new AgendamentoBO().StatusAgendamento(job, groupJob);
         }
 
+        public PartialViewResult ExecucoesAgendamento(int id)
+        {
+            return PartialView(new ExecucaoAgendamentoDAO().BuscarExecucoesDeUmAgendamento(id));
+        }
+
     }
 }

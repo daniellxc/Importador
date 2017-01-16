@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDT.Importacao.Data.Utils;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -19,13 +20,16 @@ namespace CDT.Importacao.Data.Model
         public string NomeEmissor { get; set; }
 
         [Column("ipBaseEmissor")]
+        [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
         public string IpBaseEmissor { get; set; }
 
         [Column("nomeBaseEmissor")]
+        [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
         public string NomeBaseEmissor { get; set; }
 
-        [Column("codigoEmissor")]
-        public string CodigoEmissor { get; set; }
+        [Column("codigoEmissorFebraban")]
+        [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
+        public string CodigoEmissorFebraban { get; set; }
 
 
     }

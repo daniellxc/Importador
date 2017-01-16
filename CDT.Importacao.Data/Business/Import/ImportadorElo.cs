@@ -9,6 +9,8 @@ using CDT.Importacao.Data.Utils;
 using CDT.Importacao.Data.DAL.Classes;
 using LAB5;
 using CDT.Importacao.Data.Model.Emissores;
+using CDT.Importacao.Data.Business.Validation.Elo;
+using CDT.Importacao.Data.Utils.Log;
 
 namespace CDT.Importacao.Data.Business.Import
 {
@@ -20,6 +22,9 @@ namespace CDT.Importacao.Data.Business.Import
         List<InformacaoRegistro> buffer = new List<InformacaoRegistro>();
         List<TransacaoElo> bufferElo = new List<TransacaoElo>();
         List<Registro> registrosArquivo = new List<Registro>();
+        List<ErroValidacaoArquivo> bufferErro = new List<ErroValidacaoArquivo>();
+        List<string> referenceNumbers = new List<string>();
+        List<AutorizacaoEvtExternoCompraNaoProcessado> autorizacoesCDT = new List<AutorizacaoEvtExternoCompraNaoProcessado>();
 
 
         public bool Importar(Arquivo arquivo)
@@ -45,17 +50,23 @@ namespace CDT.Importacao.Data.Business.Import
                         
                         countLinha++;
                         if (!TipoTransacaoLinha(linha).Equals("BZ"))
-                           ProcessarRegistroDetalhe(registros, arquivo, ref sr, linha);
+                        {
+
+                            ProcessarRegistroDetalhe(registros, arquivo, ref sr, linha);
+
+                        }
+                          
 
                         copia = linha; 
                     }
 
                     PersistirBufferInformacoes();
                     ImportarInformacaoRegisto(registros.Where(r => r.FK_TipoRegistro.NomeTipoRegistro.Equals("Trailer")).First(), arquivo.IdArquivo, StringUtil.Zip(copia),"" );
+                   
                     return true;
                 }
                 else
-                    throw new IOException("Não existe arquivo com o nome informado");         
+                    throw new IOException("Não existe arquivo com o nome informado: " + arquivo.NomeArquivo);         
             }catch(IOException iox)
             {
                 throw new Exception("Erro ao tentar acessar o arquivo." + iox.Message);
@@ -85,9 +96,11 @@ namespace CDT.Importacao.Data.Business.Import
                         {
                             TransacaoElo transacaoElo = new TransacaoElo();
                             transacaoElo.NomeArquivo = arquivo.NomeArquivo;
+                            transacaoElo.IdArquivo = arquivo.IdArquivo;
                             transacaoElo.Id_Incoming = informacoes[i].IdInformacaoRegistro;
                             transacaoElo.FlagTransacaoInternacional = false; //as transacoes internacionais sao processadas em arquivo especifico
                             DecomporLinha(ref transacaoElo, StringUtil.Unzip(informacoesTransacao.Valor));
+                            ValidarTransacao(ref transacaoElo, arquivo.IdEmissor, informacoesTransacao.IdInformacaoRegistro);
                             InserirBufferElo(transacaoElo, arquivo.IdEmissor);
                             transacaoElo = null;
                         }
@@ -102,7 +115,8 @@ namespace CDT.Importacao.Data.Business.Import
                     
                 }
 
-             PersistirBufferElo(arquivo.IdEmissor);
+            PersistirBufferErro();
+            PersistirBufferElo(arquivo.IdEmissor);
             return true;
             
         }
@@ -153,6 +167,7 @@ namespace CDT.Importacao.Data.Business.Import
 
         private void ProcessarRegistroDetalhe(List<Registro> registros,Arquivo arquivo, ref StreamReader reader, string linha)
         {
+           
             string tipoTransacao = TipoTransacaoLinha(linha);
 
             if (tipoTransacao.Equals(Constantes.TE01))
@@ -214,25 +229,32 @@ namespace CDT.Importacao.Data.Business.Import
                     case "0":
                         
                         transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosFim);
-                        transacao.IdentificacaoTransacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosFim);
+                        transacao.CodigoCredenciadora = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO ADQUIRENTE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO ADQUIRENTE")).PosFim);
+                        transacao.AcquireReferenceNumber = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosFim);
+                        transacao.CicloApresentacao = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosFim));
                         transacao.DataTransacao = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DA VENDA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DA VENDA")).PosFim));
                         transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA VENDA/CHARGEBACK")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA VENDA/CHARGEBACK")).PosFim)));
-                        transacao.CodigoMoeda = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO")).PosFim));
+                        transacao.CodigoMoeda = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO")).PosFim));
                         transacao.NomeEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NOME DO ESTABELECIMENTO COMERCIAL (EC)")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NOME DO ESTABELECIMENTO COMERCIAL (EC)")).PosFim);
-                        transacao.CodigoMCC = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosFim));
+                        transacao.CodigoMCC = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosFim));
                         transacao.Id_CodigoChargeback = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DO CHARGEBACK")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DO CHARGEBACK")).PosFim));
                         transacao.CodigoAutorizacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE AUTORIZAÇÃO DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE AUTORIZAÇÃO DA TRANSAÇÃO")).PosFim);
                         transacao.DataProcessamento = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO/APRESENTAÇÃO DO CHARGEBACK")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO/APRESENTAÇÃO DO CHARGEBACK")).PosFim));
                         break;
                     case "1":
                         transacao.IndicadorMeio = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosFim);
-                        transacao.NumeroParcelas = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosFim);
+                        transacao.NumeroParcelas = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosFim));
+                        transacao.NumeroEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosFim);
+                        transacao.NumeroLogicoEquipamento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
                         transacao.ParcelaPedida = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosFim));
+                        transacao.IdProduto = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE PRODUTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE PRODUTO")).PosFim));
                         break;
                     case "2":
                         string tipoOperacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("TIPO DE OPERAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("TIPO DE OPERAÇÃO")).PosFim);
                         transacao.IdTipoOperacao = tipoOperacao.Trim().Equals(string.Empty) ? 0 : int.Parse(tipoOperacao);
                         transacao.FlagOriginal = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO DA TRANSAÇÃO ORIGINAL")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE MOVIMENTO DA TRANSAÇÃO ORIGINAL")).PosFim).Equals("00000000");
+                        transacao.QtdDiasLiquidacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE DIAS PARA LIQUIDAÇÃO FINANCEIRA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE DIAS PARA LIQUIDAÇÃO FINANCEIRA DA TRANSAÇÃO")).PosFim);
+                        transacao.ValorIntercambio = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DO INTERCÂMBIO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DO INTERCÂMBIO")).PosFim)));
                         break;
                     default:
                         break;
@@ -250,10 +272,10 @@ namespace CDT.Importacao.Data.Business.Import
                                     transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosFim);
                                     transacao.DataTransacao = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE ENVIO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE ENVIO")).PosFim));
                                     transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DESTINO")).PosFim)));
-                                    transacao.CodigoMoeda = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosFim));
+                                    transacao.CodigoMoeda = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosFim));
                                     transacao.ValorOrigem = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR ORIGEM")).PosFim)));
-                                    transacao.CodigoMoedaOrigem = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosFim));
-                                    transacao.CicloApresentacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DA TRANSAÇÃO")).PosFim);
+                                    transacao.CodigoMoedaOrigem = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosFim));
+                                    transacao.CicloApresentacao = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosFim));
                                     break;
                                 case "2":
                                     transacao.DataProcessamento = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE PROCESSAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE PROCESSAMENTO")).PosFim));
@@ -271,10 +293,10 @@ namespace CDT.Importacao.Data.Business.Import
                                     transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosFim);
                                     transacao.DataTransacao = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE ENVIO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE ENVIO")).PosFim));
                                     transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DESTINO")).PosFim)));
-                                    transacao.CodigoMoeda = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosFim));
+                                    transacao.CodigoMoeda = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA DESTINO")).PosFim));
                                     transacao.ValorOrigem = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR ORIGEM")).PosFim)));
-                                    transacao.CodigoMoedaOrigem = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosFim));
-                                    transacao.CicloApresentacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOTIVO DA TRANSAÇÃO")).PosFim);
+                                    transacao.CodigoMoedaOrigem = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosInicio, campos.Find(c => c.NomeCampo.Equals("MOEDA ORIGEM")).PosFim));
+                                    transacao.CicloApresentacao = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("IDENTIFICAÇÃO DO TIPO DE TRANSAÇÃO")).PosFim));
                                     break;
                                 case "2":
                                     transacao.DataProcessamento = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE PROCESSAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE PROCESSAMENTO")).PosFim));
@@ -288,16 +310,21 @@ namespace CDT.Importacao.Data.Business.Import
                             {
                                 case "0":
                                     transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosFim);
-                                    transacao.IdentificacaoTransacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosFim);
+                                    transacao.AcquireReferenceNumber = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosFim);
                                     transacao.DataTransacao = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DA VENDA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DA VENDA")).PosFim));
                                     transacao.NomeEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NOME DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NOME DO EC")).PosFim);
-                                    transacao.CodigoMCC = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosFim));
+                                    transacao.CodigoMCC = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO RAMO DE ATIVIDADE DO EC")).PosFim));
                                     transacao.Valor = Decimal.Parse(StringUtil.StringToMoney(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("VALOR DA FRAUDE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("VALOR DA FRAUDE")).PosFim)));
-                                    transacao.CodigoMoeda = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO FRAUDULENTA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO FRAUDULENTA")).PosFim));
+                                    transacao.CodigoMoeda = Int16.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO FRAUDULENTA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE MOEDA DA TRANSAÇÃO FRAUDULENTA")).PosFim));
                                     transacao.DataProcessamento = LAB5Utils.DataUtils.RetornaData(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("DATA DE NOTIFICAÇÃO DA FRAUDE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("DATA DE NOTIFICAÇÃO DA FRAUDE")).PosFim));
-                                    transacao.CicloApresentacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("TIPO DE FRAUDE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("TIPO DE FRAUDE")).PosFim);
+                                    transacao.CicloApresentacao = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("TIPO DE FRAUDE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("TIPO DE FRAUDE")).PosFim));
+                                    string tipoLiquidacao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE LIQUIDAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE LIQUIDAÇÃO")).PosFim);
+                                    transacao.FlagTransacaoInternacional = tipoLiquidacao == "0";
+                                    transacao.IndicadorMeio = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE")).PosFim);
+                                    transacao.NumeroEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosFim);
                                     break;
                                 case "2":
+                                    transacao.NumeroLogicoEquipamento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
                                     break;
                             }
                             break; 
@@ -305,7 +332,8 @@ namespace CDT.Importacao.Data.Business.Import
                
             }
            
-            
+      
+
             campos = null;
         }
 
@@ -314,7 +342,7 @@ namespace CDT.Importacao.Data.Business.Import
         {
             string idTransacao = ExtrairInformacao(linha, 27, 49);
             string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
-            for (int i = 1; i < 6; i++)
+            for (int i = 1; i < 5; i++)
             {
                 linha = reader.ReadLine();
                 linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
@@ -414,17 +442,40 @@ namespace CDT.Importacao.Data.Business.Import
 
         }
 
+        
+
         private void PersistirBufferElo(int idEmissor)
         {
             if (bufferElo.Count > 0)
             {
+                
                 new TransacoesEloDAO(idEmissor).Salvar(bufferElo);
                 bufferElo.Clear();
             }
 
         }
 
+    
+        public void InserirBufferErro(List<ErroValidacaoArquivo> erros)
+        {
+            if(bufferErro.Count <= Constantes.BUFFER_LIMIT)
+            {
+                bufferErro.AddRange(erros);
+            }
+            else
+            {
+                PersistirBufferErro();
+            }
+        }
 
+        private void PersistirBufferErro()
+        {
+           if(bufferErro.Count > 0)
+            {
+                new ErroValidacaoArquivoDAO().Salvar(bufferErro);
+                bufferErro.Clear();
+            }
+        }
 
         public void PersistirBufferInformacoes()
         {
@@ -435,6 +486,7 @@ namespace CDT.Importacao.Data.Business.Import
             {
                 infos = new List<InformacaoRegistro>();
                 laux.ForEach(l => infos.Add(new InformacaoRegistro(l.IdRegistro, l.IdArquivo, l.Chave, l.Valor)));
+
                 new InformacaoRegistroDAO().Salvar(infos);
                 infos = null;
             }
@@ -458,7 +510,7 @@ namespace CDT.Importacao.Data.Business.Import
         {
 
             Arquivo incoming = new ArquivoDAO().Buscar(idArquivo);
-            InformacaoRegistro headerIncoming, trailerIncoming, detailOutgoing;
+            InformacaoRegistro headerIncoming, trailerIncoming;
             Registro regHeader = new RegistroDAO().RegistroPorArquivo(idArquivo).Where(r => r.FK_TipoRegistro.NomeTipoRegistro.ToLower().Equals("header")).First(); 
             headerIncoming  = infRegistroDAO.BuscarHeaderArquivo(idArquivo);
             trailerIncoming = infRegistroDAO.BuscarTrailerArquivo(idArquivo);
@@ -489,6 +541,79 @@ namespace CDT.Importacao.Data.Business.Import
         {
             LAB5Utils.ArquivoUtils.AlterarInformacao(destino, valor, campo.PosInicio, campo.PosFim);
         }
+
+        public bool ValidarTransacao(ref TransacaoElo transacao, int idEmissor, long idInformacaoRegistro)
+        {
+            string refNumber = transacao.AcquireReferenceNumber;
+            AutorizacaoEvtExternoCompraNaoProcessado aut = autorizacoesCDT.Find(x => x.ReferenceNumber == refNumber);
+            List<ErroValidacaoArquivo> error = new ValidaArquivo(ref transacao).Validar(aut, idInformacaoRegistro);
+            if(error.Count > 0)
+            {
+                transacao.FlagProblemaTratamento = true;
+                InserirBufferErro(error);
+                    
+                return false;
+            }
+            return true;
+        }
+
+        public  int NumeroRemessaRecebida(int idArquivo)
+        {
+            
+            try
+            {
+                InformacaoRegistro informacao = infRegistroDAO.BuscarHeaderArquivo(idArquivo);
+                return int.Parse(LAB5Utils.ArquivoUtils.ExtrairInformacao(LAB5Utils.StringUtils.Unzip(informacao.Valor), 13, 16));
+            }
+            catch
+            {
+                return 0;
+            }
+            
+        }
+
+        public int NumeroRemessaEnviada()
+        {
+            InformacaoRegistro ultimoHeaderEnviado = infRegistroDAO.BuscarUltimoHeaderEnviado();
+            try
+            {
+                if (ultimoHeaderEnviado != null)
+                    return int.Parse(LAB5Utils.ArquivoUtils.ExtrairInformacao(LAB5Utils.StringUtils.Unzip(ultimoHeaderEnviado.Valor), 13, 16));
+                else return 0;
+            }
+
+            catch
+            {
+                return 0;
+            }
+        
+        }
+
+
+        //public bool ValidarArquivo(Arquivo arquivo)
+        //{
+        //    try
+        //    {
+        //        TransacoesEloDAO transDAO = new TransacoesEloDAO(arquivo.IdEmissor);
+        //        List<int> idsTransacoes = transDAO.TransacoesPorArquivo(arquivo.IdArquivo);
+        //        List<TransacaoElo> transacoesNaoValidadas = new List<TransacaoElo>();
+        //        foreach (int id in idsTransacoes)
+        //        {
+        //            TransacaoElo transacao = transDAO.Buscar(id);
+        //            if (!ValidarTransacao(ref transacao, arquivo.IdEmissor,))
+        //                transacoesNaoValidadas.Add(transacao);
+        //        }
+        //        if (transacoesNaoValidadas.Count > 0)
+        //            transDAO.NegarTransacoes(transacoesNaoValidadas.Select(x => x.Id_TransacaoElo).ToList());
+
+        //        return true;
+        //    }catch(Exception ex)
+        //    {
+        //        return false;
+        //    }
+            
+        //}
+       
 
         #endregion
     }

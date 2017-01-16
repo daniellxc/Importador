@@ -34,17 +34,20 @@ namespace CDT.Importacao.Data.Model.Emissores
         [Column("Valor")]
         public Decimal Valor { get; set; }
 
+        [Column("CodigoCredenciadora")]
+        public string CodigoCredenciadora { get; set; }
+
         [Column("CodigoMoeda")]
-        public int CodigoMoeda { get; set; }
+        public Int16 CodigoMoeda { get; set; }
 
         [Column("CodigoMoedaOrigem")]
-        public int CodigoMoedaOrigem { get; set; }
+        public Int16 CodigoMoedaOrigem { get; set; }
 
         [Column("NomeEstabelecimento")]
         public string NomeEstabelecimento { get; set; }
 
         [Column("CodigoMCC")]
-        public int CodigoMCC { get; set; }
+        public Int16 CodigoMCC { get; set; }
 
         [Column("FlagOriginal")]
         public bool FlagOriginal { get; set; }
@@ -65,7 +68,16 @@ namespace CDT.Importacao.Data.Model.Emissores
         public string CodigoAutorizacao { get; set; }
 
         [Column("NumeroParcelas")]
-        public string NumeroParcelas{get;set;}
+        public int NumeroParcelas{get;set;}
+
+        [Column("NumeroEstabelecimento")]
+        public string NumeroEstabelecimento { get; set; }
+
+        [Column("NSUOrigem")]
+        public string NumeroLogicoEquipamento { get; set; }
+
+        [Column("QtdDiasLiquidacao")]
+        public string QtdDiasLiquidacao { get; set; }
 
         [Column("FlagJuros")]
         public bool FlagJuros { get; set; }
@@ -88,11 +100,17 @@ namespace CDT.Importacao.Data.Model.Emissores
         [Column("NomeArquivo")]
         public string NomeArquivo { get; set; }
 
+        [Column("IdArquivo")]
+        public int IdArquivo { get; set; }
+
         [Column("ValorOrigem")]
         public Decimal ValorOrigem { get; set; }
 
+        [Column("ValorIntercambio")]
+        public Decimal ValorIntercambio { get; set; }
+
         [Column("CicloApresentacao")]
-        public string CicloApresentacao { get; set; }
+        public int CicloApresentacao { get; set; }
 
         [Column("Motivo2Reapresentacao")]
         public string Motivo2Reapresentacao { get; set; }
@@ -116,7 +134,7 @@ namespace CDT.Importacao.Data.Model.Emissores
         public bool FlagTransacaoInternacional { get; set; }
 
         [Column("IdProduto")]
-        public bool IdProduto { get; set; }
+        public int IdProduto { get; set; }
 
 
 

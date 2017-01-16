@@ -39,9 +39,7 @@ namespace CDT.Importacao.Data.Utils.Quartz.Schedulers
         public static void StartJobSchedule<T>(string cronExpression, string jobName, string groupName) where T : IJob
         {
             IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler();
-            string guid = Guid.NewGuid().ToString();
             
-           
             scheduler.Start();
 
             if (scheduler.CheckExists(new JobKey(jobName, groupName)))  throw new Exception("Já existe job agendado.");
@@ -60,13 +58,60 @@ namespace CDT.Importacao.Data.Utils.Quartz.Schedulers
             scheduler.ScheduleJob(job, trigger);
         }
 
+        public static void StartJobSchedule<T>(JobDataMap jobmap, string cronExpression, string jobName, string groupName) where T : IJob
+        {
+            IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler();
+
+            scheduler.Start();
+
+            if (scheduler.CheckExists(new JobKey(jobName, groupName))) throw new Exception("Já existe job agendado.");
+
+            IJobDetail job = JobBuilder.Create<T>()
+            .WithIdentity(jobName, groupName)
+            .SetJobData(jobmap)
+            .Build();
+
+            ITrigger trigger = TriggerBuilder.Create()
+
+                .WithIdentity("trg_" + jobName, groupName)
+                .WithPriority(1)
+                .WithCronSchedule(cronExpression)
+                .Build();
+
+            scheduler.ScheduleJob(job, trigger);
+
+        }
+
+        public static void StartJobSchedule<T>(JobDataMap jobMap, string jobName, string groupName) where T : IJob
+        {
+            IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler();
+
+            scheduler.Start();
+
+            if (scheduler.CheckExists(new JobKey(jobName, groupName))) throw new Exception("Já existe job agendado.");
+
+            IJobDetail job = JobBuilder.Create<T>()
+                .WithIdentity(jobName, groupName)
+                .SetJobData(jobMap)
+                .Build();
+
+            ITrigger trigger = TriggerBuilder.Create()
+
+                .WithIdentity("trg_" + jobName, groupName)
+                .StartNow()
+                .WithPriority(1)
+                .Build();
+
+            scheduler.ScheduleJob(job, trigger);
+        }
+
         //public static void StartJobSchedule<T>(IJobDetail job, string cronExpression) where T : IJob
         //{
         //    IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler();
 
         //    scheduler.Start();
-            
-            
+
+
 
         //    ITrigger trigger = TriggerBuilder.Create()
 

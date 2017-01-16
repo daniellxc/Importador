@@ -40,6 +40,9 @@ namespace CDT.Importacao.Data.Model
         [Column("idEmissor")]
         public int IdEmissor { get; set; }
 
+        [Column("possuiArquivoRetorno")]
+        public bool PossuiArquivoRetorno { get; set; }
+
 
 
 

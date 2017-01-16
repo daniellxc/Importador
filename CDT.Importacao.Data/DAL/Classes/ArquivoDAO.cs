@@ -56,6 +56,11 @@ namespace CDT.Importacao.Data.DAL.Classes
             return _dao.Get(id);
         }
 
+        public List<Arquivo> BuscarPorLayout(int idLayout)
+        {
+            return _dao.Find(x => x.IdLayout == idLayout).ToList(); 
+        }
+
         public Arquivo Buscar(DateTime dataRegistro)
         {
             DateTime data = DateTime.Parse(dataRegistro.ToShortDateString());

@@ -181,3 +181,5 @@ C:\Repositorios\Importador\CDT.Importacao.Web\bin\Common.Logging.Core.pdb
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\Common.Logging.Core.xml
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\Quartz.pdb
 C:\Repositorios\Importador\CDT.Importacao.Web\bin\Quartz.xml
+C:\Repositorios\Importador\CDT.Importacao.Web\bin\EntityFramework.Extended.dll
+C:\Repositorios\Importador\CDT.Importacao.Web\bin\EntityFramework.Extended.xml

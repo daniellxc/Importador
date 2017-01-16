@@ -20,10 +20,13 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
             ArquivoDAO arquivoDAO = new ArquivoDAO();
             ArquivoBO arquivoBO = null;
             Arquivo arquivo = null;
+            int idAgendamento = 0;
+            bool sucesso = false;
+            string message = "";
             try
             {
                 JobDataMap jobDataMap = context.JobDetail.JobDataMap;
-
+                idAgendamento = jobDataMap.GetInt("idAgendamento");
                 arquivo = new Arquivo();
                 arquivoBO = new ArquivoBO(arquivo);
                 if ((arquivo = arquivoDAO.Buscar(DateTime.Now.Date)) == null)
@@ -33,21 +36,32 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 }
                 arquivoBO.Arquivo = arquivo;
                 arquivoBO.Importar();
-                Logger.Info(this.ToString(), "Liquidação Internacional Elo. Arquivo importado. ", "QuartzJob");
+                message = "Liquidação Internacional Elo. Arquivo importado. ";
+                sucesso = true;
+                Logger.Info(this.ToString(), message, "QuartzJob");
+                
             }
             catch (Exception ex)
             {
-                Logger.Warn(this.ToString(), "Erro ao executar importação automática do arquivo de Liquidação Nacional Elo. " + ex.Message, "QuartzJob");
+                message = "Erro ao executar importação automática do arquivo de Liquidação Nacional Elo. ";
+                Logger.Warn(this.ToString(), message + ex.Message, "QuartzJob");
+                sucesso = false;
                 throw ex;
+            }
+            finally
+            {
+                new ExecucaoAgendamentoBO().SalvarExecucaoAgendamento(idAgendamento, DateTime.Now, message, sucesso);
             }
         }
 
         public void Start(int idAgendamento,string cronExpression)
         {
+            JobDataMap jobMap = new JobDataMap();
+            jobMap.Add("idAgendamento", idAgendamento);
             if (cronExpression != string.Empty)
-                CDTScheduler.StartJobSchedule<LiquidacaoInternacionalEloJob>(cronExpression, this.ToString() + idAgendamento.ToString(), "grp_" + this.ToString() + idAgendamento.ToString());
+                CDTScheduler.StartJobSchedule<LiquidacaoInternacionalEloJob>(jobMap,cronExpression, this.ToString() + idAgendamento.ToString(), "grp_" + this.ToString() + idAgendamento.ToString());
             else
-                CDTScheduler.StartJobSchedule<LiquidacaoInternacionalEloJob>(this.ToString() + idAgendamento.ToString(), "grp_" + this.ToString() + idAgendamento.ToString());
+                CDTScheduler.StartJobSchedule<LiquidacaoInternacionalEloJob>(jobMap,this.ToString() + idAgendamento.ToString(), "grp_" + this.ToString() + idAgendamento.ToString());
         }
     }
 }

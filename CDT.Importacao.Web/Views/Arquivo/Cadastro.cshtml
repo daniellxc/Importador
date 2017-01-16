@@ -26,7 +26,15 @@
 
 
             @Html.Label("Nome do Arquivo")
-            @Html.TextBoxFor(x=>x.NomeArquivo,new {@class="form-control"})
+            @Html.TextBoxFor(x=>x.NomeArquivo,new {@class="form-control"}) <br />
+
+            @Html.Label("Exige arquivo retorno")
+            @Html.CheckBoxFor(x => x.PossuiArquivoRetorno)
+
+
+
+
+
 
 
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,6 +54,11 @@ namespace CDT.Importacao.Data.DAL.Classes
             return _dao.Find(x => x.ChaveRegistro.Equals(chave) && x.IdLayout == idLayout).FirstOrDefault();
         }
 
+
+        public List<Registro> Listar(Expression<Func<Registro, bool>> where)
+        {
+            return _dao.Find(where);
+        }
      
 
         public Registro Buscar(int id)
@@ -76,6 +82,8 @@ namespace CDT.Importacao.Data.DAL.Classes
         {
             return _dao.Find(x => x.IdLayout == idLayout);
         }
+
+
 
         public void Excluir(int IdRegistro)
         {

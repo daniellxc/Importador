@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PagedList;
 using System.Linq.Expressions;
+using EntityFramework.Extensions;
 
 namespace CDT.Importacao.Data.DAL.Classes
 {
@@ -98,6 +99,20 @@ namespace CDT.Importacao.Data.DAL.Classes
             return query.FirstOrDefault();
         }
 
+        public InformacaoRegistro BuscarUltimoHeaderEnviado()
+        {
+            var query = from inf in _dao.GetContext().Set<InformacaoRegistro>()
+                        join reg in _dao.GetContext().Set<Registro>()
+                        on inf.IdRegistro equals reg.IdRegistro
+                        join lay in _dao.GetContext().Set<Layout>()
+                        on reg.IdLayout equals lay.IdLayout
+                        join tre in _dao.GetContext().Set<TipoRegistro>()
+                        on reg.IdTipoRegistro equals tre.IdTipoRegistro
+                        where reg.ChaveRegistro.Equals("B0-OUTGOING") && tre.NomeTipoRegistro.ToLower().Equals("header")
+                        select inf;
+            return query.FirstOrDefault();
+        }
+
         public List<InformacaoRegistro> ListarTodos()
         {
             return _dao.GetAll();
@@ -109,11 +124,38 @@ namespace CDT.Importacao.Data.DAL.Classes
 
         }
 
+
+
+        public List<InformacaoRegistro> ListarRegistrosRejeitados(int idArquivo)
+        {
+            var query = from info in _dao.GetContext().Set<InformacaoRegistro>().ToList()
+                        from negadas in _dao.GetContext().Set<ErroValidacaoArquivo>().ToList()
+                        .Where(x=>x.IdInformacaoRegistro == info.IdInformacaoRegistro)
+                        .OrderBy(x=>x.IdErroValidacaoArquivo)
+                        .Take(1)
+                        where info.IdArquivo == idArquivo  
+                        select new InformacaoRegistro
+                        {
+                            Erro = negadas.erro.Substring(0, 3),
+                            FlagErro = info.FlagErro,
+                            IdArquivo = info.IdArquivo,
+                            Chave = info.Chave,
+                            IdInformacaoRegistro = info.IdInformacaoRegistro,
+                            Valor = info.Valor,
+                            IdRegistro = info.IdRegistro
+
+                        };
+
+            return query.ToList();
+        }
+
+
         public IQueryable<InformacaoRegistro> ListarInformacoesDoArquivo(int idArquivo)
         {
             
             return _dao.ZZZFind(x => x.IdArquivo == idArquivo);
         }
+
 
         public IQueryable<InformacaoRegistro> ListarPorChave(string idChave)
         {
@@ -152,10 +194,17 @@ namespace CDT.Importacao.Data.DAL.Classes
             return _dao.Find(x => x.IdArquivo == idArquivo && x.FlagErro == false).ToList();
         }
         
+        public void Delete(List<Registro> registros)
+        {
+            int[] ids = registros.Select(x => x.IdRegistro).ToArray();
+            _dao.GetContext().Set<InformacaoRegistro>().Where(x=>ids.Contains(x.IdRegistro)).Delete();
+        }
 
         public InformacaoRegistro Buscar(int id)
         {
             return _dao.Get(id);
         }
+
+       
     }
 }

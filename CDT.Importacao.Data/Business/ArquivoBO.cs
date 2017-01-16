@@ -84,7 +84,7 @@ namespace CDT.Importacao.Data.Business
                 Arquivo.IdEmissor = idEmissor;
                 Arquivo.IdLayout = idLayout;
                 Arquivo.IdStatusArquivo = 1;
-                Arquivo.NomeArquivo = nomeArquivo;//DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + "_LQDNACELO.txt";
+                Arquivo.NomeArquivo = nomeArquivo;
                 _dao.Salvar(Arquivo);
                 return this.Arquivo;
             }catch(Exception ex)
@@ -124,6 +124,10 @@ namespace CDT.Importacao.Data.Business
                 throw new Exception("Erro ao processar o arquivo." + ex.Message);
             }
         }
+
+      
+
+   
 
    
 

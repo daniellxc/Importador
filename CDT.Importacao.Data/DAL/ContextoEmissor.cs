@@ -10,6 +10,10 @@ namespace CDT.Importacao.Data.DAL
 {
     public class ContextoEmissor :DbContext, IContext
     {
+
+        public DbSet<Autorizacoes> Autorizacoes { get; set; }
+        public DbSet<Cartoes> Cartoes{ get; set; }
+        public DbSet<EventosExternosComprasNaoProcessados> EventosExternosComprasNaoProcessados { get; set; }
         public DbSet<TransacaoElo> TransacoesElo { get; set; }
 
         public ContextoEmissor(string connectionString):base(connectionString)

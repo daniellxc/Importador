@@ -4,6 +4,7 @@ using CDT.Importacao.Data.Model.Emissores;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
+using EntityFramework.Extensions;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
@@ -70,6 +71,10 @@ namespace CDT.Importacao.Data.DAL.Classes
             }
         }
 
+        public void NegarTransacoes(List<int> ids)
+        {
+            _dao.GetContext().Set<TransacaoElo>().Where(u=> ids.Contains(u.Id_TransacaoElo)).Update(u => new TransacaoElo { FlagProblemaTratamento = true });
+        }
 
 
 
@@ -85,10 +90,22 @@ namespace CDT.Importacao.Data.DAL.Classes
         }
 
         
+        public List<int> TransacoesPorArquivo(int idArquivo)
+        {
+            var query = from trans in _dao.GetContext().Set<TransacaoElo>()
+                        where trans.IdArquivo  == idArquivo
+                        select trans.Id_TransacaoElo;
+            return query.ToList();
+        }
 
-        public List<TransacaoElo> TransacoesPorCodigoMoeda(string nomeArquivo, int codMoeda)
+        public List<TransacaoElo> TransacoesProcessadasPorCodigoMoeda(string nomeArquivo, int codMoeda)
         {
             return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo);
+        }
+
+        public List<TransacaoElo> TransacoesConciliadasPorCodigoMoeda(string nomeArquivo, int codMoeda)
+        {
+            return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo && x.FlagProblemaTratamento == false);
         }
 
         public List<TransacaoElo> TransacoesPorCodigoTransacao(string nomeArquivo, string codTransacao)
@@ -105,6 +122,23 @@ namespace CDT.Importacao.Data.DAL.Classes
         {
             return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo) && (x.TE.Equals("05") || x.TE.Equals("10") || x.TE.Equals("15") ));
         }
+
+        public List<TransacaoElo> TransacoesProcessadas(string nomeArquivo)
+        {
+            return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo));
+        }
+
+        public List<TransacaoElo> TransacoesConciliadas(string nomeArquivo)
+        {
+            return _dao.Find(x => x.NomeArquivo.Equals(nomeArquivo) && x.FlagProblemaTratamento == false);
+        }
+
+        public List<TransacaoElo> TransacoesNacionaisProcessadas(string nomeArquivo)
+        {
+            return _dao.Find(x => nomeArquivo.Equals(nomeArquivo)  && x.FlagTransacaoInternacional == false);
+        }
+
+
 
     }
 }

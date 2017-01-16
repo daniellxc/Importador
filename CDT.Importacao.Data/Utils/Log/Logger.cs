@@ -24,6 +24,10 @@ namespace CDT.Importacao.Data.Utils.Log
 
         }
 
+        public static void Warn(List<CDT.Importacao.Data.Model.Log> logs)
+        {
+            dao.Salvar(logs);
+        }
 
         public static void Info(string source, string message, string user)
         {

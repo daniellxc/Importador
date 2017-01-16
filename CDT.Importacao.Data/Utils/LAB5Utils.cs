@@ -45,10 +45,17 @@ namespace LAB5
 
             public static string AlterarInformacao(string linha, string novoValor, int posIni, int posFim)
             {
-                string result = "";
+                int i = novoValor != string.Empty ? novoValor.Count() : 1;
+              
+                if (novoValor.Length != (posFim - posIni) + 1)
+                    throw new Exception("Tamanho do novo valor difere o intervalo informado");
+                string result="";
                 try
                 {
-                    result = linha.Replace(linha.Substring(posIni - 1, (posFim - posIni) + 1), novoValor);
+                    StringBuilder sb = new StringBuilder(linha);
+                    sb.Remove(posIni - 1, (posFim - posIni) + 1);
+                    sb.Insert(posIni - 1, novoValor);
+                    result = sb.ToString();
                 }
                 catch (IndexOutOfRangeException)
                 {
@@ -118,7 +125,30 @@ namespace LAB5
                 return str.Split(new string[] { splitter }, StringSplitOptions.RemoveEmptyEntries);
             }
 
-        }
+            public static bool IsNumber(string str)
+            {
+                foreach (char c in str)
+                    if (!Char.IsNumber(c))
+                        return false;
+                return true;
+            }
+
+
+
+            public static string OnlyNumbers(string valor)
+            {
+                string retorno = "";
+                for(int i = 0; i < valor.Length; i++)
+                {
+                    if (Char.IsNumber(valor[i]))
+                        retorno += valor[i];
+                }
+                return retorno;
+            }
+        }//FIM STRING UTIL
+
+
+
         /// <summary>
         /// Utilitários para manipulação de listas
         /// </summary>
@@ -167,6 +197,7 @@ namespace LAB5
         public class CriptografiaUtils
         {
             private static string key = "jesusaverdadeeavida";
+
             public static string TripleDESEncrypt(string toEncrypt, bool useHashing)
             {
                 byte[] keyArray;
@@ -250,7 +281,41 @@ namespace LAB5
                 //return the Clear decrypted TEXT
                 return UTF8Encoding.UTF8.GetString(resultArray);
             }
-        }
+
+
+            public static string HashMd5(string input)
+            {
+                MD5 md5Hash = MD5.Create();
+                // Converter a String para array de bytes, que é como a biblioteca trabalha.
+                byte[] data = md5Hash.ComputeHash(Encoding.ASCII.GetBytes(input));
+
+
+                // Cria-se um StringBuilder para recompôr a string.
+                StringBuilder sBuilder = new StringBuilder();
+
+                // Loop para formatar cada byte como uma String em hexadecimal
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sBuilder.Append(data[i].ToString("X"));
+                }
+
+                return sBuilder.ToString();
+            }
+
+
+            public static byte[] GetMD5(string input)
+            {
+                MD5 md5Hash = MD5.Create();
+                // Converter a String para array de bytes, que é como a biblioteca trabalha.
+                byte[] data = md5Hash.ComputeHash(Encoding.ASCII.GetBytes(input));
+                Array.Reverse(data);
+                return data;
+            }
+
+        }//FIM CRIPTOGRAFIA UTILS
+
+
+       
 
 
         public class ReflectionUtils

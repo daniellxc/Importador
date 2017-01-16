@@ -25,7 +25,7 @@ namespace CDT.Importacao.Data.Business
 
         public string GetConnectionString()
         {
-            return "Data Source =" + emissor.IpBaseEmissor +  "; Initial Catalog =" + emissor.NomeBaseEmissor + "; Integrated Security = true";
+            return "Data Source =" + emissor.IpBaseEmissor +  "; Initial Catalog =" + emissor.NomeBaseEmissor + "; Integrated Security = true;MultipleActiveResultSets=True";
         }
     }
 }

@@ -63,5 +63,7 @@ namespace CDT.Importacao.Data.Utils
         {
             return  string.Format("{0:0.00}", Convert.ToDecimal(str) / 100);
         }
+
+       
     }
 }

@@ -30,6 +30,9 @@ namespace CDT.Importacao.Data.Model
         [Column("flagErro")]
         public bool FlagErro { get; set; }
 
+        [NotMapped]
+        public string Erro { get; set; }
+
         public InformacaoRegistro()
         {
 

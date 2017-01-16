@@ -57,7 +57,7 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                 
-                 new ArquivoBO(arq).Importar();
+                new ArquivoBO(arq).Importar();
                 Alert("Arquivo importado com sucesso.");
                 LogINFO(this.ToString(), "Importar arquivo:" + LAB5Utils.ReflectionUtils.GetObjectDescription(arq));
                 return View("Index");

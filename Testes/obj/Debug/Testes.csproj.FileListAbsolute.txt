@@ -89,3 +89,5 @@ C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.Core.pdb
 C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.Core.xml
 C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.pdb
 C:\Repositorios\Importador\Testes\bin\Debug\Common.Logging.xml
+C:\Repositorios\Importador\Testes\bin\Debug\EntityFramework.Extended.dll
+C:\Repositorios\Importador\Testes\bin\Debug\EntityFramework.Extended.xml

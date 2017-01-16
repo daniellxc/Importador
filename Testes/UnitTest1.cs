@@ -15,6 +15,12 @@ using PagedList;
 using CDT.Importacao.Data.Business;
 using CDT.Importacao.Data.Utils.Quartz.Schedulers;
 using CDT.Importacao.Data.Utils.Quartz.Jobs;
+using LAB5;
+using System.Numerics;
+using System.Data.SqlClient;
+using System.Net;
+using CDT.Importacao.Data.Business.Validation.Elo;
+using System.Globalization;
 
 namespace Testes
 {
@@ -176,13 +182,22 @@ namespace Testes
         public void TestarBulkUpdate()
         {
 
-            Agendamento a = new AgendamentoDAO().Buscar(2);
+            // var t = new ImportadorElo().NumeroRemessaEnviada();
 
-            new AgendamentoBO().IniciarAgendamento(a);
 
-            CDTScheduler.NextExecutionTime("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
+            //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).OnErro();
 
-            CDTScheduler.DeleteJob("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
+            new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).MontarArquivoRetorno("C:\\arquivos\\Elo","retorno.txt");
+
+            //new ImportadorElo().ValidarTransacao(ref transacao, 73);
+
+            //Agendamento a = new AgendamentoDAO().Buscar(2);
+
+            //new AgendamentoBO().IniciarAgendamento(a);
+
+            //CDTScheduler.NextExecutionTime("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
+
+            //CDTScheduler.DeleteJob("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
 
         }
 

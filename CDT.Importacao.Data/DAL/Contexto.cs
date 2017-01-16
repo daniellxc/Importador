@@ -20,6 +20,8 @@ namespace CDT.Importacao.Data.Model
         public DbSet<Agendamento> Agendamentos { get; set; }
         public DbSet<Arquivo> Arquivos { get; set; }
         public DbSet<Campo> Campos { get; set; }
+        public DbSet<ErroValidacaoArquivo> ErrosValidacaoArquivo { get; set; }
+        public DbSet<ExecucaoAgendamento> ExecucoesAgendamento{ get; set; }
         public DbSet<Informacao> Informacao { get; set; }
         public DbSet<InformacaoRegistro> InformacoesRegistro { get; set; }
         public DbSet<Layout> Layouts { get; set; }
