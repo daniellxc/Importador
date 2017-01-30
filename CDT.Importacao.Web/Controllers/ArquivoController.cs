@@ -1,4 +1,5 @@
 ﻿using CDT.Importacao.Data.Business;
+using CDT.Importacao.Data.Business.Import;
 using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
 using LAB5;
@@ -66,6 +67,31 @@ namespace CDT.Importacao.Web.Controllers
             {
                 Alert(ex.Message);
                 LogWARN(this.ToString(), "Erro ao importar arquivo: " + LAB5Utils.ReflectionUtils.GetObjectDescription(arq) + ex.Message);
+                return View("Index");
+            }
+        }
+
+        /// <summary>
+        /// UTILIZAR APENAS PARA A ELO. OS ARQUIVOS DE RETORNO SERÃO GERADOS PELOS JOBS QUARTZ
+        /// </summary>
+        /// <param name="idArquivo"></param>
+        /// <returns></returns>
+        public ActionResult MontarArquivoRetorno(int idArquivo)
+        {
+            Arquivo arquivoBase = _dao.Buscar(idArquivo);
+            try
+            {
+                
+                new ArquivoRetornoElo(arquivoBase).MontarArquivoRetorno(arquivoBase.FK_Layout.DiretorioArquivo, "MBRCV.IO.RX.IO36D.M07063CI.RET1");
+                Alert("Arquivo gerado com sucesso.");
+                LogINFO(this.ToString(), "Gerar arquivo retorno Elo:" + LAB5Utils.ReflectionUtils.GetObjectDescription(arquivoBase));
+                return View("Index");
+
+            }
+            catch(Exception ex)
+            {
+                Alert(ex.Message);
+                LogWARN(this.ToString(), "Erro ao gerar aqruivo retorno Elo: " + LAB5Utils.ReflectionUtils.GetObjectDescription(arquivoBase) + ex.Message);
                 return View("Index");
             }
         }

@@ -340,9 +340,13 @@ namespace CDT.Importacao.Data.Business.Import
 
         public void TratarRegistroE01(List<Registro> registros, Arquivo arquivo, ref StreamReader reader, string linha)
         {
+            int limit = 2;
+            string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
+            if (tecnologiaTerminal == "5")
+                limit = 4;
             string idTransacao = ExtrairInformacao(linha, 27, 49);
             string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
-            for (int i = 1; i < 5; i++)
+            for (int i = 1; i <= limit; i++)
             {
                 linha = reader.ReadLine();
                 linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
@@ -357,11 +361,15 @@ namespace CDT.Importacao.Data.Business.Import
 
         public void TratarRegistroE05(List<Registro> registros, Arquivo arquivo, ref StreamReader reader, string linha)
          {
-             
+            int limit = 2;
+            string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
+            if (tecnologiaTerminal == "5")
+                limit = 4;
              string idTransacao = ExtrairInformacao(linha, 27, 49);
              string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
-             for (int i = 1; i < 5; i++)
+             for (int i = 1; i <= limit; i++)
              {
+
                 linha = reader.ReadLine();
                 linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
                
