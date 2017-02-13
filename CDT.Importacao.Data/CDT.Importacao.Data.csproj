@@ -137,6 +137,7 @@
     <Compile Include="Model\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Constantes.cs" />
+    <Compile Include="Utils\Extensions\Extensions.cs" />
     <Compile Include="Utils\LAB5Utils.cs" />
     <Compile Include="Utils\Log\Logger.cs" />
     <Compile Include="Utils\Quartz\CDTJob.cs" />

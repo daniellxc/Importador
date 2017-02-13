@@ -126,6 +126,20 @@ namespace CDT.Importacao.Data.Business
             }
         }
 
+        public string BuscarNomeArquivoDiretorio(string path, string fileNamePattern)
+        {
+            string retorno = "";
+            DirectoryInfo di = new DirectoryInfo(path);
+            if (di.Exists)
+            {
+                FileInfo fi = di.GetFiles().Where(f => f.Name.Contains(fileNamePattern)).FirstOrDefault();
+                if (fi != null)
+                    retorno = fi.Name;
+            }
+
+            return retorno;
+        }
+
       
 
    

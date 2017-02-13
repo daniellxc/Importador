@@ -57,6 +57,5 @@ C:\Repositorios\Importador_2\CDT.Importacao.Data\bin\Debug\PagedList.EntityFrame
 C:\Repositorios\Importador_2\CDT.Importacao.Data\bin\Debug\PagedList.EntityFramework.xml
 C:\Repositorios\Importador_2\CDT.Importacao.Data\bin\Debug\Quartz.pdb
 C:\Repositorios\Importador_2\CDT.Importacao.Data\bin\Debug\Quartz.xml
-C:\Repositorios\Importador_2\CDT.Importacao.Data\obj\Debug\CDT.Importacao.Data.csprojResolveAssemblyReference.cache
 C:\Repositorios\Importador_2\CDT.Importacao.Data\obj\Debug\CDT.Importacao.Data.dll
 C:\Repositorios\Importador_2\CDT.Importacao.Data\obj\Debug\CDT.Importacao.Data.pdb

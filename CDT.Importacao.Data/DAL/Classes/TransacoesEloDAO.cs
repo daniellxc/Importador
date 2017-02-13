@@ -98,14 +98,31 @@ namespace CDT.Importacao.Data.DAL.Classes
             return query.ToList();
         }
 
+        /// <summary>
+        /// Transacoes lidas do arquivo
+        /// </summary>
+        /// <param name="nomeArquivo"></param>
+        /// <param name="codMoeda"></param>
+        /// <returns></returns>
         public List<TransacaoElo> TransacoesProcessadasPorCodigoMoeda(string nomeArquivo, int codMoeda)
         {
             return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo);
         }
 
+        /// <summary>
+        /// Transacoes lidas do arquivo e localizadas na base do emissor
+        /// </summary>
+        /// <param name="nomeArquivo"></param>
+        /// <param name="codMoeda"></param>
+        /// <returns></returns>
         public List<TransacaoElo> TransacoesConciliadasPorCodigoMoeda(string nomeArquivo, int codMoeda)
         {
             return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo && x.FlagProblemaTratamento == false);
+        }
+
+        public List<TransacaoElo> TransacoesNaoConciliadasPorCodigoMoeda(string nomeArquivo, int codMoeda)
+        {
+            return _dao.Find(x => x.CodigoMoeda == codMoeda && x.NomeArquivo == nomeArquivo && x.FlagProblemaTratamento == true);
         }
 
         public List<TransacaoElo> TransacoesPorCodigoTransacao(string nomeArquivo, string codTransacao)

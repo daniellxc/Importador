@@ -22,5 +22,7 @@ namespace CDT.Importacao.Web
             new AgendamentoBO().IniciarAgendamentosAtivos();
           
         }
+
+
     }
 }

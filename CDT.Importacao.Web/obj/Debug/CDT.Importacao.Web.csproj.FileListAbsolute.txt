@@ -281,3 +281,6 @@ C:\Repositorios\Importador_2\CDT.Importacao.Web\bin\EntityFramework.Extended.xml
 C:\Repositorios\Importador_2\CDT.Importacao.Web\obj\Debug\CDT.Importacao.Web.csprojResolveAssemblyReference.cache
 C:\Repositorios\Importador_2\CDT.Importacao.Web\obj\Debug\CDT.Importacao.Web.dll
 C:\Repositorios\Importador_2\CDT.Importacao.Web\obj\Debug\CDT.Importacao.Web.pdb
+C:\Repositorios\Importador_2\CDT.Importacao.Web\bin\FontAwesomeIcons.dll
+C:\Repositorios\Importador_2\CDT.Importacao.Web\bin\FontAwesomeIcons.pdb
+C:\Repositorios\Importador_2\CDT.Importacao.Web\bin\FontAwesomeIcons.xml

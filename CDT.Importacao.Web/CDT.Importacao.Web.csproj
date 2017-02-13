@@ -65,6 +65,10 @@
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FontAwesomeIcons, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FontAwesomeIcons.1.0.3\lib\FontAwesomeIcons.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="GridMvc, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Grid.Mvc.3.0.0\lib\net40\GridMvc.dll</HintPath>
       <Private>True</Private>
@@ -248,6 +252,9 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\CSS\font-awesome.css" />
+    <Content Include="Content\CSS\font-awesome.min.css" />
+    <Content Include="Content\Fonts\fontawesome-webfont.svg" />
     <Content Include="Content\Gridmvc.css" />
     <Content Include="Content\login.css" />
     <Content Include="Content\themes\base\accordion.css" />
@@ -314,6 +321,37 @@
     <Content Include="Scripts\gridmvc.lang.ru.js" />
     <Content Include="Scripts\gridmvc.min.js" />
     <Content Include="Scripts\gridmvc.lang.pt.js" />
+    <Content Include="Content\Scss\FontAwesome\_variables.scss" />
+    <Content Include="Content\Scss\FontAwesome\_stacked.scss" />
+    <Content Include="Content\Scss\FontAwesome\_rotated-flipped.scss" />
+    <Content Include="Content\Scss\FontAwesome\_path.scss" />
+    <Content Include="Content\Scss\FontAwesome\_mixins.scss" />
+    <Content Include="Content\Scss\FontAwesome\_list.scss" />
+    <Content Include="Content\Scss\FontAwesome\_larger.scss" />
+    <Content Include="Content\Scss\FontAwesome\_icons.scss" />
+    <Content Include="Content\Scss\FontAwesome\_fixed-width.scss" />
+    <Content Include="Content\Scss\FontAwesome\_core.scss" />
+    <Content Include="Content\Scss\FontAwesome\_bordered-pulled.scss" />
+    <Content Include="Content\Scss\FontAwesome\_animated.scss" />
+    <Content Include="Content\Scss\FontAwesome\font-awesome.scss" />
+    <Content Include="Content\Less\FontAwesome\variables.less" />
+    <Content Include="Content\Less\FontAwesome\stacked.less" />
+    <Content Include="Content\Less\FontAwesome\rotated-flipped.less" />
+    <Content Include="Content\Less\FontAwesome\path.less" />
+    <Content Include="Content\Less\FontAwesome\mixins.less" />
+    <Content Include="Content\Less\FontAwesome\list.less" />
+    <Content Include="Content\Less\FontAwesome\larger.less" />
+    <Content Include="Content\Less\FontAwesome\icons.less" />
+    <Content Include="Content\Less\FontAwesome\font-awesome.less" />
+    <Content Include="Content\Less\FontAwesome\fixed-width.less" />
+    <Content Include="Content\Less\FontAwesome\core.less" />
+    <Content Include="Content\Less\FontAwesome\bordered-pulled.less" />
+    <Content Include="Content\Less\FontAwesome\animated.less" />
+    <Content Include="Content\Fonts\FontAwesome.otf" />
+    <Content Include="Content\Fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\Fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\Fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\Fonts\fontawesome-webfont.eot" />
     <None Include="job_scheduling_data_2_0.xsd">
       <SubType>Designer</SubType>
     </None>

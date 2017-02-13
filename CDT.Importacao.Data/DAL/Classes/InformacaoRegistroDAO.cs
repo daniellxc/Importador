@@ -99,7 +99,7 @@ namespace CDT.Importacao.Data.DAL.Classes
             return query.FirstOrDefault();
         }
 
-        public InformacaoRegistro BuscarUltimoHeaderEnviado()
+        public InformacaoRegistro BuscarUltimoHeaderEnviado(int idArquivo)
         {
             var query = from inf in _dao.GetContext().Set<InformacaoRegistro>()
                         join reg in _dao.GetContext().Set<Registro>()
@@ -108,7 +108,7 @@ namespace CDT.Importacao.Data.DAL.Classes
                         on reg.IdLayout equals lay.IdLayout
                         join tre in _dao.GetContext().Set<TipoRegistro>()
                         on reg.IdTipoRegistro equals tre.IdTipoRegistro
-                        where reg.ChaveRegistro.Equals("B0-OUTGOING") && tre.NomeTipoRegistro.ToLower().Equals("header")
+                        where reg.ChaveRegistro.Equals("B0-OUTGOING") && tre.NomeTipoRegistro.ToLower().Equals("header") && inf.IdArquivo == idArquivo
                         select inf;
             return query.FirstOrDefault();
         }

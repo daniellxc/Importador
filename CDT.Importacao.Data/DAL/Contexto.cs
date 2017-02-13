@@ -47,6 +47,7 @@ namespace CDT.Importacao.Data.Model
         {
             modelBuilder.Entity<Informacao>().HasKey(e => e.idInformacao);
             base.OnModelCreating(modelBuilder);
+
           
 
         }

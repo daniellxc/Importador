@@ -5,6 +5,7 @@ using CDT.Importacao.Data.Model;
 using LAB5;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -82,7 +83,9 @@ namespace CDT.Importacao.Web.Controllers
             try
             {
                 
-                new ArquivoRetornoElo(arquivoBase).MontarArquivoRetorno(arquivoBase.FK_Layout.DiretorioArquivo, "MBRCV.IO.RX.IO36D.M07063CI.RET1");
+                DirectoryInfo di = LAB5Utils.DirectoryUtils.CreateDirectory(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Liquidacao_Elo\" + arquivoBase.NomeArquivo);
+                
+                new ArquivoRetornoElo(arquivoBase).MontarArquivoRetorno(di.FullName , "MBRCV.IO.RX.IO36D.M07063CI.RET(+1)");
                 Alert("Arquivo gerado com sucesso.");
                 LogINFO(this.ToString(), "Gerar arquivo retorno Elo:" + LAB5Utils.ReflectionUtils.GetObjectDescription(arquivoBase));
                 return View("Index");

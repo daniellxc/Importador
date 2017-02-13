@@ -358,5 +358,23 @@ namespace LAB5
                 return dados;
             }
         }
+
+        #region Utilitarios para Diretorios
+        public class DirectoryUtils
+        {
+            public static DirectoryInfo CreateDirectory(string path)
+            {
+                DirectoryInfo di = new DirectoryInfo(path);
+                if(!di.Exists)
+                    di.Create();
+                return di;
+            }
+
+        }
+
+        #endregion
+
+
+       
     }
 }

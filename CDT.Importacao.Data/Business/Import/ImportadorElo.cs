@@ -47,17 +47,14 @@ namespace CDT.Importacao.Data.Business.Import
                     string copia = ""; 
                     while ((linha = sr.ReadLine()) != null)
                     {
-                        
                         countLinha++;
                         if (!TipoTransacaoLinha(linha).Equals("BZ"))
                         {
-
                             ProcessarRegistroDetalhe(registros, arquivo, ref sr, linha);
-
                         }
                           
-
-                        copia = linha; 
+                        copia = linha;
+                        linha = null; 
                     }
 
                     PersistirBufferInformacoes();
@@ -94,6 +91,7 @@ namespace CDT.Importacao.Data.Business.Import
                         InformacaoRegistro informacoesTransacao = informacoes[i];
                         if (informacoesTransacao.Chave != string.Empty)
                         {
+                      
                             TransacaoElo transacaoElo = new TransacaoElo();
                             transacaoElo.NomeArquivo = arquivo.NomeArquivo;
                             transacaoElo.IdArquivo = arquivo.IdArquivo;
@@ -180,6 +178,7 @@ namespace CDT.Importacao.Data.Business.Import
                              tipoTransacao.Equals(Constantes.TE16) || tipoTransacao.Equals(Constantes.TE25) || tipoTransacao.Equals(Constantes.TE26) || tipoTransacao.Equals(Constantes.TE35) ||
                              tipoTransacao.Equals(Constantes.TE36))
             {
+                
                
                 TratarRegistroE05(registros, arquivo, ref reader, linha);
               
@@ -203,8 +202,8 @@ namespace CDT.Importacao.Data.Business.Import
            
         }
 
+
         
-       
 
         public void InstanciarObjetoTransacao(ref TransacaoElo transacao, Registro registro, string linha)
         {
@@ -342,7 +341,7 @@ namespace CDT.Importacao.Data.Business.Import
         {
             int limit = 2;
             string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
-            if (tecnologiaTerminal == "5")
+            if (tecnologiaTerminal == "05")
                 limit = 4;
             string idTransacao = ExtrairInformacao(linha, 27, 49);
             string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
@@ -361,24 +360,50 @@ namespace CDT.Importacao.Data.Business.Import
 
         public void TratarRegistroE05(List<Registro> registros, Arquivo arquivo, ref StreamReader reader, string linha)
          {
-            int limit = 2;
-            string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
-            if (tecnologiaTerminal == "5")
-                limit = 4;
-             string idTransacao = ExtrairInformacao(linha, 27, 49);
-             string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
-             for (int i = 1; i <= limit; i++)
-             {
+            string idTransacao = "";
+            try
+            {
+                int limit = 2;
+                string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
+                if (tecnologiaTerminal == "05" && (TipoTransacaoLinha(linha) != Constantes.TE06 && TipoTransacaoLinha(linha) != Constantes.TE26))
+                    limit = 4;
+                 idTransacao = ExtrairInformacao(linha, 27, 49);
+                string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
+                for (int i = 1; i <= limit; i++)
+                {
 
-                linha = reader.ReadLine();
-                linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
-               
-             }
+                    linha = reader.ReadLine();
+                    ValidaRegistrosTransacaoChip(linha, i);
+                    linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
 
-            RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult)});
+                }
+
+                RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro na transacao " + idTransacao + ". " + ex.Message);
+            }
          }
+   
 
       
+        private void ValidaRegistrosTransacaoChip(string linha, int numRegistro)
+        {
+            if (numRegistro == 3)
+            {
+                if (TipoRegistroTransacao(linha) != "5")
+                    throw new Exception("Não foi possível localizar o registro 05.");
+            }
+               
+            else
+            if(numRegistro==4)
+            {
+                if (TipoRegistroTransacao(linha) != "7")
+                    throw new Exception("Não foi possível localizar o registro 07.");
+            }
+                  
+        }
 
         public void TratarRegistroE10(List<Registro> registros,Arquivo arquivo, ref StreamReader reader, string linha)
         {
@@ -580,13 +605,13 @@ namespace CDT.Importacao.Data.Business.Import
             
         }
 
-        public int NumeroRemessaEnviada()
+        public int NumeroRemessaEnviada(int idArquivo)
         {
-            InformacaoRegistro ultimoHeaderEnviado = infRegistroDAO.BuscarUltimoHeaderEnviado();
+            InformacaoRegistro ultimoHeaderEnviado = infRegistroDAO.BuscarUltimoHeaderEnviado(idArquivo);
             try
             {
                 if (ultimoHeaderEnviado != null)
-                    return int.Parse(LAB5Utils.ArquivoUtils.ExtrairInformacao(LAB5Utils.StringUtils.Unzip(ultimoHeaderEnviado.Valor), 13, 16));
+                    return int.Parse(LAB5Utils.ArquivoUtils.ExtrairInformacao(LAB5Utils.StringUtils.Unzip(ultimoHeaderEnviado.Valor), 13, 16) );
                 else return 0;
             }
 

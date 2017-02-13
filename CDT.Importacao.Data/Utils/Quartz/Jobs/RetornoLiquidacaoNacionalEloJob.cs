@@ -10,6 +10,7 @@ using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Business;
 using LAB5;
 using CDT.Importacao.Data.Utils.Log;
+using System.IO;
 
 namespace CDT.Importacao.Data.Utils.Quartz.Jobs
 {
@@ -28,9 +29,13 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 {
                     JobDataMap jobDataMap = context.JobDetail.JobDataMap;
                     idAgendamento = jobDataMap.GetInt("idAgendamento");
-                    string nomeArquivo = LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now) + "_LQD_NACIONAL_RETORNO.txt";
+                    string nomeArquivo = "MBRCV.IO.RX.IO36D.M07063CI.RET(+1)";
                     Arquivo arquivo = new ArquivoDAO().BuscarPorLayout(layout.IdLayout).OrderByDescending(d => d.DataImportacao).First();
-                    new ArquivoRetornoElo(arquivo).MontarArquivoRetorno(layout.DiretorioArquivo, nomeArquivo);
+                    DirectoryInfo di = LAB5Utils.DirectoryUtils.CreateDirectory(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Liquidacao_Elo\" + arquivo.NomeArquivo);
+                    if (!Directory.Exists(di.FullName))
+                        throw new Exception("Diretório para geração do arquivo retorno não existe.");
+
+                    new ArquivoRetornoElo(arquivo).MontarArquivoRetorno(di.FullName, nomeArquivo);
                     message = "ELO - LIQUIDACAO NACIONAL - Arquivo de retorno gerado com sucesso. ";
                     sucesso = true;
                     Logger.Info(this.ToString(), message, "QuartzJob");

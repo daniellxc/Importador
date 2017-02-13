@@ -85,15 +85,15 @@ namespace CDT.Importacao.Data.Business
 
         private string MontarRegistroTE44()
         {
-            int totalTransacoesEmReal = transacoesEloDAO.TransacoesProcessadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Count;
-            decimal valorTransacoesEmReal = transacoesEloDAO.TransacoesProcessadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Sum(x => x.Valor);
-            int totalTransacoesNaoAceitasEmReal = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Count;
-            decimal valorTransacoesNaoAceitasEmReal = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Sum(x => x.Valor);
+            int totalTransacoesEmReal = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Count;
+            decimal valorTransacoesEmReal = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Sum(x => x.Valor);
+            int totalTransacoesNaoAceitasEmReal = transacoesEloDAO.TransacoesNaoConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Count;
+            decimal valorTransacoesNaoAceitasEmReal = transacoesEloDAO.TransacoesNaoConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 986).Sum(x => x.Valor);
 
-            int totalTransacoesEmDolar = transacoesEloDAO.TransacoesProcessadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Count;
-            decimal valorTransacoesEmDolar = transacoesEloDAO.TransacoesProcessadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Sum(x => x.Valor);
-            int totalTransacoesNaoAceitasEmDolar = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Count;
-            decimal valorTransacoesNaoAceitasEmDolar = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Sum(x => x.Valor);
+            int totalTransacoesEmDolar = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Count;
+            decimal valorTransacoesEmDolar = transacoesEloDAO.TransacoesConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Sum(x => x.Valor);
+            int totalTransacoesNaoAceitasEmDolar = transacoesEloDAO.TransacoesNaoConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Count;
+            decimal valorTransacoesNaoAceitasEmDolar = transacoesEloDAO.TransacoesNaoConciliadasPorCodigoMoeda(arquivo.NomeArquivo, 840).Sum(x => x.Valor);
 
             string valorDetail = new string('0', 168);
 
@@ -244,18 +244,18 @@ namespace CDT.Importacao.Data.Business
 
         public bool MontarArquivoRetorno(string diretorioDestino,string nomeArquivo)
         {
-            if (PodeGerar())
-            {
+            //if (PodeGerar())
+            //{
                 StreamWriter sw;
                 string header, trailer;
                 List<string> details;
-
-                if (Directory.Exists(diretorioDestino))
+              
+                if (!Directory.Exists(diretorioDestino))
                 {
-                    sw = new StreamWriter(diretorioDestino + "\\" + nomeArquivo);
-                }
-                else
                     throw new Exception("O Diretório de destino do arquivo não existe");
+                }
+                
+                
 
                 try
                 {
@@ -264,7 +264,7 @@ namespace CDT.Importacao.Data.Business
                     details = MontarDetail();
                     trailer = MontarTrailer();
                     ValidarEstruturaArquivo(header, details[0], trailer);
-
+                    sw = new StreamWriter(diretorioDestino + "\\" + nomeArquivo);
                     sw.WriteLine(header);
                     //se a remesse for aceita ou parcialmente aceita, escreve o registro TE44 e as transacoes rejeitas
                     if (situacaoRemessa == "A")
@@ -290,9 +290,9 @@ namespace CDT.Importacao.Data.Business
                 }
 
 
-            }
-            else
-                throw new Exception("Arquivo não conciliado. O arquivo de retorno não pode ser gerado.");
+            //}
+            //else
+            //    throw new Exception("Arquivo não conciliado. O arquivo de retorno não pode ser gerado.");
 
 
         }
@@ -306,12 +306,14 @@ namespace CDT.Importacao.Data.Business
         private string ValidarRemessaRecebidaAdquirencia(string header)
         {
             ImportadorElo importador = new ImportadorElo();
-     
-           if (importador.NumeroRemessaRecebida(arquivo.IdArquivo) - importador.NumeroRemessaEnviada()  != 1)
+            int numRec = importador.NumeroRemessaRecebida(arquivo.IdArquivo);
+            int numEnv = importador.NumeroRemessaEnviada(arquivo.IdArquivo);
+
+           if ((numEnv > 0) && (numEnv  - numRec) != 1)
                 return "02";//NUMERO DE REMESSA FORA DE SEQUENCIA
             if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 3, 4) != "10")
                 return "11";//CODIGO DE SERVICO NAO PREVISTO
-            if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 49, 52) != "1111")
+            if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 49, 52) != "0063")
                 return "13";//CODIGO DO EMISSOR INVALIDO
             if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 165, 167) != "007")
                 return "13";//CODIGO DE BANDEIRA INVALIDO

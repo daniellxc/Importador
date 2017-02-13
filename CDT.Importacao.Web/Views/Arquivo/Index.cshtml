@@ -6,21 +6,24 @@
 
 @Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
 
-
+<div style="font-size:10pt">
 @Html.Grid(new ArquivoDAO().ListarTodos().OrderByDescending(a => a.IdArquivo)).Columns(c =>
 {
-    c.Add(x => x.IdArquivo).Titled("ID");
-    c.Add(x => x.NomeArquivo).Titled("Nome");
-    c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout");
-    c.Add(x => x.DataRegistro.Date).Titled("Data Registro");
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => StatusArquivo(d.FK_StatusArquivo)).Titled("Status");
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => DataImportacao(d.DataImportacao)).Titled("Data Processamento");
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnImportar(d));
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnRetorno(d));
-    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdArquivo = d.IdArquivo }));
+c.Add(x => x.IdArquivo,true).Titled("ID");
+c.Add(x => x.NomeArquivo).Titled("Nome");
+c.Add(x => x.FK_Layout.NomeLayout).Titled("Layout");
+c.Add(x => x.DataRegistro.Date).Titled("Data Registro").Format("{0:dd/MM/yyyy}") ;
+c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => StatusArquivo(d.FK_StatusArquivo)).Titled("Status");
+c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => DataImportacao(d.DataImportacao)).Titled("Data Processamento");
+c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnImportar(d));
+c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => btnRetorno(d));
+c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink(" ", "Editar", new { IdArquivo = d.IdArquivo }, new {@class= "glyphicon glyphicon-edit" }));
 
 }
 ).EmptyText("Não há registro de importações.").WithPaging(20)
+</div>
+
+
 
 
 @helper DataImportacao(DateTime data)
@@ -55,9 +58,10 @@ else
 
 @helper btnImportar(CDT.Importacao.Data.Model.Arquivo arquivo)
 {
-    if (arquivo.IdStatusArquivo != 2)
-    {
-        @Html.ActionLink("importar", "importar", new { IdArquivo = arquivo.IdArquivo }, new { @onclick = "return Confirm('Deseja realmente importar este arquivo?')" })
+if (arquivo.IdStatusArquivo != 2)
+{
+        <a class="glyphicon glyphicon-save" style="font-size:12pt" data-toggle="tooltip" title="Importar arquivo @arquivo.NomeArquivo" href=@Url.Action("importar","Arquivo", new {IdArquivo = arquivo.IdArquivo }) onclick="return Confirm('Deseja realmente importar este arquivo?')"></a><br />
+        
     }
 }
 
@@ -65,7 +69,7 @@ else
 {
 if (arquivo.IdStatusArquivo == 2 && arquivo.PossuiArquivoRetorno)
 {
-        @Html.ActionLink("arq. retorno", "MontarArquivoRetorno", new { IdArquivo = arquivo.IdArquivo }, new { @onclick = "return Confirm('Confirma a geração do arquivo de retorno?')" })
+        <a class="glyphicon glyphicon-open" data-toggle="tooltip" title="Gerar arquivo retorno"  href=@Url.Action("MontarArquivoRetorno", "Arquivo", new {IdArquivo = arquivo.IdArquivo }) onclick="return Confirm('Confirma a geração do arquivo de retorno?')"></a>
 }
 }
 

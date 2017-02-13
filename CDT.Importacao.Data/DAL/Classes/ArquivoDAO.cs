@@ -29,6 +29,8 @@ namespace CDT.Importacao.Data.DAL.Classes
                 {
                     _dao.Add(arquivo);
                     _dao.CommitChanges();
+             
+
                 }else
                 {
                     _dao.Update(arquivo, arquivo.IdArquivo);

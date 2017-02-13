@@ -110,7 +110,7 @@ namespace CDT.Importacao.Web.Controllers
 
         public PartialViewResult ExecucoesAgendamento(int id)
         {
-            return PartialView(new ExecucaoAgendamentoDAO().BuscarExecucoesDeUmAgendamento(id));
+            return PartialView(new ExecucaoAgendamentoDAO().BuscarExecucoesDeUmAgendamento(id).OrderByDescending(a=>a.DataExecucao).ToList());
         }
 
     }

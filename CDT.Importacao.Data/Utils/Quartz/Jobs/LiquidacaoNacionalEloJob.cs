@@ -1,6 +1,7 @@
 ﻿using CDT.Importacao.Data.Business;
 using CDT.Importacao.Data.DAL.Classes;
 using CDT.Importacao.Data.Model;
+using CDT.Importacao.Data.Utils.Extensions;
 using CDT.Importacao.Data.Utils.Log;
 using CDT.Importacao.Data.Utils.Quartz.Schedulers;
 using LAB5;
@@ -31,12 +32,16 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 idAgendamento = jobDataMap.GetInt("idAgendamento");
                 arquivo = new Arquivo();
                 arquivoBO = new ArquivoBO(arquivo);
+                string nomeArquivoNaElo = LocalizaNomeArquivoElo(DateTime.Now);
+                if (nomeArquivoNaElo == "")
+                    throw new Exception("Nenhum arquivo recepcionado com o nome especificado.");
                 if ((arquivo = arquivoDAO.Buscar(DateTime.Now.Date)) == null)
                 {
                     int idEmissor = new EmissorDAO().Buscar("CBSS").IdEmissor;
-                    arquivoBO.GerarArquivo(1, idEmissor, LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now) + "_LQDNACELO.txt");
+                    arquivo = arquivoBO.GerarArquivo(1, idEmissor, nomeArquivoNaElo);
+                    
                 }
-                arquivoBO.Arquivo = arquivo;
+                arquivoBO.Arquivo = arquivoDAO.Buscar(arquivo.IdArquivo);
                 arquivoBO.Importar();
                 message = "Liquidação Nacional Elo. Arquivo importado.";
                 sucesso = true;
@@ -44,9 +49,9 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
             }
             catch(Exception ex)
             {
-                message = "Erro ao executar importação automática do arquivo de Liquidação Nacional Elo. ";
+                message = "Erro ao executar importação automática do arquivo de Liquidação Nacional Elo. " + ex.GetAllMessages();
                 sucesso = false;
-                Logger.Warn(this.ToString(), message + ex.Message, "QuartzJob");
+                Logger.Warn(this.ToString(), message, "QuartzJob");
                 throw ex;
             }
             finally
@@ -63,6 +68,13 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 CDTScheduler.StartJobSchedule<LiquidacaoNacionalEloJob>(jobMap,cronExpression,this.ToString()+idAgendamento.ToString(),"grp_"+this.ToString()+idAgendamento.ToString());
             else
                 CDTScheduler.StartJobSchedule<LiquidacaoNacionalEloJob>(jobMap,this.ToString() + idAgendamento.ToString(), "grp_" + this.ToString()+idAgendamento.ToString());
+        }
+
+        public string LocalizaNomeArquivoElo(DateTime data)
+        {
+            string nomeArquivo = "H.ARQ.OUT.NAC." + LAB5Utils.DataUtils.RetornaDataYYYYMMDD(data);
+
+            return new ArquivoBO(new Arquivo()).BuscarNomeArquivoDiretorio(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Saida", nomeArquivo);
         }
 
     }

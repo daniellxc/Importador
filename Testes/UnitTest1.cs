@@ -187,7 +187,14 @@ namespace Testes
 
             //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).OnErro();
 
-            new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).MontarArquivoRetorno("C:\\arquivos\\Elo","retorno.txt");
+            //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).MontarArquivoRetorno("C:\\arquivos\\Elo","retorno.txt");
+
+            Exception ex = new Exception("Teste01", new Exception("Teste02"));
+           
+
+            string s = LAB5Utils.ExceptionUtil.GetAllMessages(ex);
+
+            string name = new ArquivoBO(new Arquivo()).BuscarNomeArquivoDiretorio(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Saida", "H.ARQ.OUT.NAC.20170209");
 
             //new ImportadorElo().ValidarTransacao(ref transacao, 73);
 
