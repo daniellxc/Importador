@@ -1,0 +1,41 @@
+﻿@model CDT.Importacao.Data.Model.Agendamento
+@{
+    SelectList jobs = new SelectList( LAB5.LAB5Utils.ReflectionUtils.GetTypes("CDT.Importacao.Data", "CDT.Importacao.Data.Utils.Quartz.Jobs"), "FullName", "Name");
+
+}
+
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<h2>Agendamento de importações</h2>
+
+@using (Html.BeginForm("Salvar", "Agendamento"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Job")
+            @Html.DropDownListFor(x => x.JobClass, jobs, "---", new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.JobClass)
+
+            @Html.Label("Cron Expression")
+            @Html.TextBoxFor(x => x.CronExpression, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.CronExpression)
+
+            @Html.Label("Ativo")
+            @Html.CheckBox("Ativo")
+            
+
+            @if (Model != null)
+            {
+                @Html.HiddenFor(x => x.IdAgendamento);
+                @Html.HiddenFor(x => x.DataCriacao);
+               
+            }
+
+        </div>
+     
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}
+
+

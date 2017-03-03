@@ -108,6 +108,11 @@ namespace CDT.Importacao.Data.Model
 
         }
 
+        public IEnumerable<string> CallStoredProcedure(SqlParameter parameter, string procedureName)
+        {
+            return contextoConcreto.Database.SqlQuery<string>("EXEC " + procedureName, parameter);
+        }
+
         public virtual void Update(T entity)
         {
             contextoConcreto.Entry(entity).State = EntityState.Modified;

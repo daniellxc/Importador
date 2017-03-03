@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDT - Conciliação</title>
+    @Styles.Render("~/Content/css")
+
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <script src="~/Scripts/gridmvc.js"></script>
+    <script src="~/Scripts/gridmvc.lang.pt.js"></script>
+    <link href="~/Content/Gridmvc.css" rel="stylesheet" />
+    <script src="~/Scripts/js.js"></script>
+    @*@Scripts.Render("~/bundles/modernizr")*@
+
+</head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        
+        <div class="container">
+            <div class="navbar-header"> 
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+              
+                @Html.ActionLink("Importador CDT", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+        @if (Request.IsAuthenticated)
+        {
+                     <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Layouts", "Index", "Layout")</li>
+                        <li>@Html.ActionLink("Registros", "Index", "Registro")</li>
+                        <li>@Html.ActionLink("Campos", "Index", "Campo")</li>
+                        <li>@Html.ActionLink("Subcampos", "Index", "Subcampo")</li>
+                        <li>@Html.ActionLink("Arquivos", "Index", "Arquivo")</li>
+                        <li>@Html.ActionLink("Agendamentos", "Index", "Agendamento")</li>
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+
+        }
+        </div>
+    </div>
+
+    <div class="container body-content">
+        <br />
+      @if(ViewBag.Erro != "" && ViewBag.Erro != null)
+      {
+          @Html.Partial("_partialMessage")
+      }
+        @RenderBody()
+        <hr />
+        
+    </div>
+
+
+    
+    
+    =
+    @*@Scripts.Render("~/bundles/bootstrap.js")*@
+
+  
+    
+   
+    @RenderSection("scripts", required: false)
+
+
+</body>
+</html>

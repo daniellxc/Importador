@@ -1,0 +1,21 @@
+﻿
+@{
+    string mensagem = ViewBag.Erro;
+ }
+
+<div class="alert alert-info clickable" data-effect="slideUp">
+ 
+    
+        <p>@mensagem</p>
+
+  
+</div> 
+
+<script>
+$(function(){
+$('.clickable').on('click',function(){
+    var effect = $(this).data('effect');
+        $(this).closest('.alert')[effect]();
+	})
+})
+</script>

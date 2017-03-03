@@ -74,7 +74,7 @@ namespace CDT.Importacao.Data.Model.Emissores
         public string NumeroEstabelecimento { get; set; }
 
         [Column("NSUOrigem")]
-        public string NumeroLogicoEquipamento { get; set; }
+        public string NSUOrigem { get; set; }
 
         [Column("QtdDiasLiquidacao")]
         public string QtdDiasLiquidacao { get; set; }

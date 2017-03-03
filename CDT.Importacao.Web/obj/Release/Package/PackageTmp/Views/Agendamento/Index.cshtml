@@ -1,0 +1,85 @@
+﻿@using GridMvc.Html
+@using CDT.Importacao.Data.DAL.Classes
+@using CDT.Importacao.Data.Business
+
+<script src="~/Scripts/jquery-3.1.1.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+<div class="row">
+   
+        <h2>Agendamentos Disponíveis</h2>
+
+
+        @Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
+
+
+        @Html.Grid(new AgendamentoDAO().ListarTodos().OrderByDescending(a => a.DataCriacao)).Columns(c =>
+   {
+       c.Add(x => x.IdAgendamento).Titled("ID");
+       c.Add(x => x.DataCriacao).Titled("Dt.Criação");
+       c.Add(x => x.JobClass).Titled("Job");
+       c.Add(x => x.CronExpression).Titled("Cron Expression");
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => Status(new AgendamentoBO().StatusAgendamento(d.JobClass + d.IdAgendamento.ToString(), "grp_" + d.JobClass + d.IdAgendamento.ToString()))).Titled("Status");
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => NextFireTime(new AgendamentoBO().ProximaExecucao(d.JobClass + d.IdAgendamento.ToString(), "grp_" + d.JobClass + d.IdAgendamento.ToString()))).Titled("Próx. Execução");
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("iniciar", "Iniciar", new { IdAgendamento = d.IdAgendamento }));
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("parar", "Parar", new { IdAgendamento = d.IdAgendamento, job = d.JobClass + d.IdAgendamento.ToString(), groupJob = "grp_" + d.JobClass + d.IdAgendamento.ToString() }, new { @onclick = "return confirm('Deseja realmente parar o agendamento?')" }));
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdAgendamento = d.IdAgendamento }));
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("excluir", "Excluir", new { IdAgendamento = d.IdAgendamento }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
+       c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @<a href="#" class="btnExecucoes" idAgendamento =@d.IdAgendamento>execuções</a>);
+       //c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("execuções","",new { idAgendamento = d.IdAgendamento },new {@class="btnExecucoes" }));
+   }
+).EmptyText("Nenhum agendamento registrado.").WithPaging(10)
+
+
+    </div>
+
+<div id="modal">
+
+</div>
+
+
+@helper Status(bool ativo)
+{
+if (ativo)
+{
+        <span class="label label-success">Ativo</span>
+}
+else
+{
+        <span class="label label-warning">Parado</span>
+}
+
+}
+
+@helper NextFireTime(DateTime scheduledTime) {
+if (scheduledTime != DateTime.MinValue)
+{
+        <span>@scheduledTime </span>
+}
+else
+{
+        <span>---</span>
+}
+}
+
+
+<script>
+    $(function carregar () {
+        $(".btnExecucoes").click(function () {
+            var codigo = $(this).attr("idAgendamento");
+            $("#modal").load("../Agendamento/ExecucoesAgendamento/" + codigo).attr("title", "Execuções do agendamento").dialog({
+                height: 400,
+                width: 600,
+                modal: true,
+                resizable: true,
+                dialogClass: 'no-close success-dialog'
+            });
+
+        });
+
+    });
+</script>
+
+
+
+

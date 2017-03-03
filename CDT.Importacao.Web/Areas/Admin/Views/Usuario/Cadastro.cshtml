@@ -1,0 +1,44 @@
+﻿@model CDT.Importacao.Data.Model.Usuario
+
+<h2>Cadastro de Usuários</h2>
+
+@using (Html.BeginForm("Salvar", "Usuario"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Nome")
+            @Html.TextBoxFor(x=>x.Nome, new {@class="form-control"})
+            @Html.ValidationMessageFor(x => x.Nome)
+
+            @Html.Label("Login")
+            @Html.TextBoxFor(x => x.Login, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.Login)
+
+            @Html.Label("Senha")
+            @Html.PasswordFor(x => x.Senha, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.Login)
+
+            @Html.Label("Usuário Ativo")
+            @Html.CheckBoxFor(x => x.Ativo)
+            @Html.ValidationMessageFor(x => x.Ativo)<br />
+
+
+            @Html.Label("Usuário admin")
+            @Html.CheckBoxFor(x=>x.Admin)
+            @Html.ValidationMessageFor(x => x.Admin) <br />
+
+
+            @if (Model != null)
+            {
+
+                @Html.HiddenFor(x => x.IdUsuario);
+               
+            }
+
+        </div>
+        <a href=@Url.Action("index","Usuario") class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+}

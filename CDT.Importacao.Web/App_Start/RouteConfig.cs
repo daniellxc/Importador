@@ -16,7 +16,8 @@ namespace CDT.Importacao.Web
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Login", action = "Login", id = UrlParameter.Optional }
+                defaults: new { controller = "Login", action = "Login", id = UrlParameter.Optional },
+                namespaces: new string[] { "CDT.Importacao.Web.Controllers" }
             );
         }
     }

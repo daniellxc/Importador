@@ -1,0 +1,48 @@
+﻿@model CDT.Importacao.Data.Model.TipoSubcampo
+@using GridMvc.Html
+
+<h2>Cadastrar Tipo de Subcampo</h2>
+
+@using (Html.BeginForm("Salvar", "TipoSubcampo"))
+{
+    <fieldset>
+        <div class="form-group">
+            @Html.Label("Chave")
+            @Html.TextBoxFor(x => x.ChaveTipoSubcampo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.ChaveTipoSubcampo)
+
+            @Html.Label("Nome")
+            @Html.TextBoxFor(x => x.NomeTipoSubcampo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.NomeTipoSubcampo)
+
+
+            @if (Model != null)
+            {
+
+                @Html.HiddenFor(x => x.IdTipoSubcampo);
+
+            }
+
+        </div>
+        <a href=@Url.Action("index","TipoSubcampo") class="btn btn-primary">Cancelar</a>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+
+
+    </fieldset>
+
+}
+
+<hr />
+
+<h4>Tipos de subcampo cadastrados</h4>
+
+@Html.Grid(new CDT.Importacao.Data.DAL.Classes.TipoSubcampoDAO().ListarTodos().OrderByDescending(x => x.IdTipoSubcampo)).Columns(c =>
+{
+    c.Add(x => x.IdTipoSubcampo).Titled("ID");
+    c.Add(x => x.ChaveTipoSubcampo).Titled("Chave").Filterable(true);
+    c.Add(x => x.NomeTipoSubcampo).Titled("Nome").Filterable(true);
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdTipoSubCampo = d.IdTipoSubcampo }));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("excluir", "Excluir", new { IdTipoSubCampo = d.IdTipoSubcampo }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
+
+}
+).WithPaging(20).WithMultipleFilters()

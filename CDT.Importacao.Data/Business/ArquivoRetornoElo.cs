@@ -60,12 +60,12 @@ namespace CDT.Importacao.Data.Business
             situacao = ValidarRemessaRecebidaAdquirencia(headerReal);
             situacaoRemessa = situacao != "" ? "R" : "A";
             motivoRejeicaoRemessa = situacao != "" ? situacao : "";
-            if (situacaoRemessa == "A")
-                numRemessa++;
+            //if (situacaoRemessa == "A")
+            //    numRemessa++;
 
 
 
-            headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, numRemessa.ToString().PadLeft(4, '0'), 13, 16);
+            //headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, numRemessa.ToString().PadLeft(4, '0'), 13, 16);
             headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now), regHeader.Campos.Where(c => c.NomeCampo.Equals("DATA DE RETORNO DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("DATA DE RETORNO DO ARQUIVO")).First().PosFim);
             headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, LAB5Utils.DataUtils.RetornaHoraHHMMSS(DateTime.Now), regHeader.Campos.Where(c => c.NomeCampo.Equals("HORA DE RETORNO DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("HORA DE RETORNO DO ARQUIVO")).First().PosFim);
             headerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(headerReal, "2", regHeader.Campos.Where(c => c.NomeCampo.Equals("INDICADOR DE ROTA DO ARQUIVO")).First().PosInicio, regHeader.Campos.Where(c => c.NomeCampo.Equals("INDICADOR DE ROTA DO ARQUIVO")).First().PosFim);
@@ -105,7 +105,7 @@ namespace CDT.Importacao.Data.Business
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, arquivo.FK_Emissor.CodigoEmissorFebraban, 5, 9);
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, string.Empty.PadLeft((13-10) + 1, ' '), 10, 13);
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, dataRemessa, 14, 21);
-                valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, numRemessa.ToString().PadLeft((27-22) + 1, '0'), 22, 27);
+                valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, numRemessa.ToString().PadLeft((27-22) +1 , '0'), 22, 27);
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, LAB5Utils.DataUtils.RetornaDataYYYYMMDD(DateTime.Now), 28, 35);
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, situacaoRemessa, 36, 36);
                 valorDetail = LAB5Utils.ArquivoUtils.AlterarInformacao(valorDetail, motivoRejeicaoRemessa.PadLeft((38-37) + 1,' '), 37, 38);
@@ -203,24 +203,34 @@ namespace CDT.Importacao.Data.Business
 
             string trailerReal = LAB5Utils.StringUtils.Unzip(trailerIncoming.Valor);
 
+            string strValorCredReal, strValorCredDolar, strValorDebReal, strValorDebDolar;
+
+            
+            
+
             totalTransacoesCredReal = transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t=>t.CodigoMoeda == 986).ToList().Count;
-            valorTransacaoesCredReal = transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 986).ToList().Sum(t => t.Valor);
+            valorTransacaoesCredReal = Math.Round(transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 986).ToList().Sum(t => t.Valor),2);
             totalTransacoesCredDolar = transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).ToList().Count;
-            valorTransacoesCredDolar = transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).ToList().Sum(t => t.Valor);
+            valorTransacoesCredDolar = Math.Round(transacaoDAO.TransacoesCredito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).ToList().Sum(t => t.Valor),2);
             totalTransacoesDebReal = transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 986).ToList().Count;
             totalTransacoesDebDolar = transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).ToList().Count;
-            valorTransacoesDebReal = transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 986).Sum(t => t.Valor);
-            valorTransacoesDedDolar = transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).Sum(t => t.Valor);
+            valorTransacoesDebReal =  Math.Round(transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 986).Sum(t => t.Valor),2);
+            valorTransacoesDedDolar = Math.Round(transacaoDAO.TransacoesDebito(arquivo.NomeArquivo).Where(t => t.CodigoMoeda == 840).Sum(t => t.Valor),2);
 
+            strValorCredDolar = valorTransacoesCredDolar > 0 ? valorTransacoesCredDolar.ToString().Remove(valorTransacoesCredDolar.ToString().IndexOf(','), 1).PadLeft(15, '0') : new string('0',15);
+            strValorCredReal = valorTransacaoesCredReal > 0 ? valorTransacaoesCredReal.ToString().Remove(valorTransacaoesCredReal.ToString().IndexOf(','), 1).PadLeft(15, '0') : new string('0', 15);
+            strValorDebReal = valorTransacoesDebReal > 0 ? valorTransacoesDebReal.ToString().Remove(valorTransacoesDebReal.ToString().IndexOf(','), 1).PadLeft(15, '0') : new string('0', 15);
+            strValorDebDolar = valorTransacoesDedDolar > 0 ? valorTransacoesDedDolar.ToString().Remove(valorTransacoesDedDolar.ToString().IndexOf(','), 1).PadLeft(15, '0') : new string('0', 15);
+                                                                
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, totalTransacoesCredReal.ToString().PadLeft(8, '0'), 9, 16);
-            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, valorTransacaoesCredReal.ToString().Replace('.', ' ').Replace(',', ' ').PadLeft(15, '0'), 17, 31);
+            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal,strValorCredReal , 17, 31);
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, totalTransacoesDebReal.ToString().PadLeft(8, '0'), 32, 39);
-            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, valorTransacoesDebReal.ToString().Replace('.', ' ').Replace(',', ' ').PadLeft(15, '0'), 40, 54);
-
+            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, strValorDebReal, 40, 54);
+            
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, totalTransacoesCredDolar.ToString().PadLeft(8, '0'), 55, 62);
-            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, valorTransacoesCredDolar.ToString().Replace('.', ' ').Replace(',', ' ').PadLeft(15, '0'), 63, 77);
+            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, strValorCredDolar, 63, 77);
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, totalTransacoesDebDolar.ToString().PadLeft(8, '0'), 78, 85);
-            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, valorTransacoesDedDolar.ToString().Replace('.', ' ').Replace(',', ' ').PadLeft(15, '0'), 86, 100);
+            trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, strValorDebDolar, 86, 100);
 
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal,totalRegistros.ToString().PadLeft(8,'0'),101,108);
             trailerReal = LAB5Utils.ArquivoUtils.AlterarInformacao(trailerReal, new string(' ', (116-109) + 1), 109, 116);
@@ -309,8 +319,8 @@ namespace CDT.Importacao.Data.Business
             int numRec = importador.NumeroRemessaRecebida(arquivo.IdArquivo);
             int numEnv = importador.NumeroRemessaEnviada(arquivo.IdArquivo);
 
-           if ((numEnv > 0) && (numEnv  - numRec) != 1)
-                return "02";//NUMERO DE REMESSA FORA DE SEQUENCIA
+           //if ((numEnv > 0) && (numEnv  - numRec) != 1)
+           //     return "02";//NUMERO DE REMESSA FORA DE SEQUENCIA
             if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 3, 4) != "10")
                 return "11";//CODIGO DE SERVICO NAO PREVISTO
             if (LAB5Utils.ArquivoUtils.ExtrairInformacao(header, 49, 52) != "0063")

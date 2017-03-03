@@ -1,0 +1,21 @@
+﻿@using GridMvc.Html
+@using CDT.Importacao.Data.DAL.Classes
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Layouts Cadastrados</h2>
+
+@Html.ActionLink("Novo", "Cadastro", "", new {@class="btn btn-primary" })
+
+@Html.Grid(new LayoutDAO().ListarTodos()).Columns(c =>
+{
+    c.Add(x => x.IdLayout).Titled("ID");
+    c.Add(x => x.NomeLayout).Titled("Nome");
+    c.Add(x => x.DiretorioArquivo).Titled("Diretório dos Arquivos");
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("editar", "Editar", new { IdLayout = d.IdLayout }));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(d => @Html.ActionLink("excluir", "Excluir", new { IdLayout = d.IdLayout }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
+}
+).WithPaging(20)
+

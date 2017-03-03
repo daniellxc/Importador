@@ -1,0 +1,22 @@
+﻿@using GridMvc.Html
+
+@model List< CDT.Importacao.Data.Model.ExecucaoAgendamento>
+
+@Html.Grid(Model).Columns(c => {
+    c.Add(x => x.DataExecucao).Titled("Data");
+    c.Add(x => x.Resultado).Titled("Resultado da execução");
+    c.Add().Sanitized(false).Encoded(false).RenderValueAs(x => Sucesso(x.Sucesso)).Titled("Status") ;
+
+}).EmptyText("nenhuma execução para este agendamento")
+    
+@helper Sucesso(bool sucesso)
+{
+if (sucesso)
+{
+        <span class="label label-success">sucesso</span>
+}
+else
+{
+        <span class="label label-danger">erro</span>
+}
+}

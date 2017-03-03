@@ -11,6 +11,7 @@ namespace CDT.Importacao.Data.Model.Emissores
         public int IdAutorizacao { get; set; }
         public string Cartao { get; set; }
         public string CartaoReal { get; set; }
+        public string CodigoAutorizacao { get; set; }
         public string ReferenceNumber { get; set; }
         public DateTime DataAutorizacao { get; set; }
         public decimal Valor { get; set; }

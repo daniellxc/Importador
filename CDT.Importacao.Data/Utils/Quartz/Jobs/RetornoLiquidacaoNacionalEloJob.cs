@@ -29,9 +29,11 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 {
                     JobDataMap jobDataMap = context.JobDetail.JobDataMap;
                     idAgendamento = jobDataMap.GetInt("idAgendamento");
-                    string nomeArquivo = "MBRCV.IO.RX.IO36D.M07063CI.RET(+1)";
-                    Arquivo arquivo = new ArquivoDAO().BuscarPorLayout(layout.IdLayout).OrderByDescending(d => d.DataImportacao).First();
-                    DirectoryInfo di = LAB5Utils.DirectoryUtils.CreateDirectory(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Liquidacao_Elo\" + arquivo.NomeArquivo);
+                    string nomeArquivo = "MBRCV.IO.RX.IO36D.M07063CI.RET(+1)"; //MBRCV.IO.RX.IO36D.M07063CI.RET(+1)
+                    Arquivo arquivo = new ArquivoDAO().BuscarPorLayout(layout.IdLayout, DateTime.Now.Date);
+                    if (arquivo == null)
+                        throw new Exception("Nenhum arquivo encontrado na data informada.");
+                    DirectoryInfo di = LAB5Utils.DirectoryUtils.CreateDirectory(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Liquidacao_Elo");
                     if (!Directory.Exists(di.FullName))
                         throw new Exception("Diretório para geração do arquivo retorno não existe.");
 

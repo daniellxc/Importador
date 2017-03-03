@@ -9,6 +9,9 @@ using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.IO;
+using CDT.Importacao.Data.Utils.Log;
 
 namespace CDT.Importacao.Data.DAL.Classes
 {
@@ -55,6 +58,37 @@ namespace CDT.Importacao.Data.DAL.Classes
             {
                 throw ex;
             }
+        }
+
+        public List<string> GerarReportFraude(string data)
+        {
+            List<SqlParameter> parms = new List<SqlParameter>();
+            SqlParameter parm1 = new SqlParameter("@DATA", System.Data.SqlDbType.VarChar);
+            parm1.Value = data;
+            parms.Add(parm1);
+           
+            try
+            {
+                List<string> result = _dao.CallStoredProcedure(parm1, "REPORT_FRAUDE_ELO @DATA").ToList();
+                if(result != null)
+                {
+                    StreamWriter sw = new StreamWriter(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Registrofraude_Elo\" + "MBRCV.OE.RX.BRPOERAD.CBSS.FRAUDES(+1)"); //MBRCV.OE.RX.BRPOERAD.CBSS.FRAUDES(+1) //MBRCV.OE.RX.BRPOER7D.CBSS.FRAUDES(+1)
+                    foreach (string s in result)
+                        sw.WriteLine(s);
+                    sw.Flush();
+                    sw.Close();
+
+                    return result;
+                }
+
+                return null;
+
+            }catch
+            {
+                throw;
+            }
+           
+
         }
 
         public void Salvar(List<TransacaoElo> transacoes)

@@ -143,6 +143,7 @@
     <Compile Include="Utils\Quartz\CDTJob.cs" />
     <Compile Include="Utils\Quartz\Jobs\LiquidacaoInternacionalEloJob.cs" />
     <Compile Include="Utils\Quartz\Jobs\LiquidacaoNacionalEloJob.cs" />
+    <Compile Include="Utils\Quartz\Jobs\ReportFraudeEloJob.cs" />
     <Compile Include="Utils\Quartz\Jobs\RetornoLiquidacaoNacionalEloJob.cs" />
     <Compile Include="Utils\Quartz\Schedulers\AbstractScheduler.cs" />
     <Compile Include="Utils\Quartz\Schedulers\CDTScheduler.cs" />

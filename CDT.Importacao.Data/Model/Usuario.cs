@@ -32,5 +32,9 @@ namespace CDT.Importacao.Data.Model
         [Column("ativo")]
         [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
         public bool Ativo { get; set; }
+
+        [Column("admin")]
+        [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
+        public bool Admin { get; set; }
     }
 }

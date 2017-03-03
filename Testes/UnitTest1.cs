@@ -31,10 +31,10 @@ namespace Testes
         public void TesteGeral()
         {
             var cronos = new Stopwatch();
-            Arquivo l = new ArquivoDAO().Buscar(10);
+            Arquivo l = new ArquivoDAO().Buscar(3053);
 
             cronos.Start();
-            new ImportadorElo().Importar(l);
+            //new ImportadorElo().Importar(l);
             new ImportadorElo().GerarTransacoesEmissor(l);
             cronos.Stop();
              var tempoProcessamento = cronos.ElapsedMilliseconds; 
@@ -184,17 +184,13 @@ namespace Testes
 
             // var t = new ImportadorElo().NumeroRemessaEnviada();
 
-
+            TransacoesEloDAO transacaoDAO = new TransacoesEloDAO(85);
             //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).OnErro();
 
             //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).MontarArquivoRetorno("C:\\arquivos\\Elo","retorno.txt");
 
-            Exception ex = new Exception("Teste01", new Exception("Teste02"));
-           
-
-            string s = LAB5Utils.ExceptionUtil.GetAllMessages(ex);
-
-            string name = new ArquivoBO(new Arquivo()).BuscarNomeArquivoDiretorio(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Saida", "H.ARQ.OUT.NAC.20170209");
+            decimal teste = Math.Round(transacaoDAO.TransacoesDebito("H.ARQ.OUT.NAC.201702150239.CBSS").Where(t => t.CodigoMoeda == 986).Sum(t => t.Valor), 2);
+            string s = teste.ToString().Remove(teste.ToString().IndexOf(','),1).PadLeft(15,'0');
 
             //new ImportadorElo().ValidarTransacao(ref transacao, 73);
 

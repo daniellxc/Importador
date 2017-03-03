@@ -262,6 +262,7 @@ namespace CDT.Importacao.Data.Business.Validation.Elo
         
         public List<ErroValidacaoArquivo> Validar(AutorizacaoEvtExternoCompraNaoProcessado autEvtExt, long idInformacaoRegistro)
         {
+            this.autEvtExt = autEvtExt;
                         
              if (autEvtExt != null)
             {
@@ -304,7 +305,7 @@ namespace CDT.Importacao.Data.Business.Validation.Elo
                 if (!this.Validacao13(transacao.CodigoMCC.ToString()))
                     AddErroList(idInformacaoRegistro, "E13 - Codigo do ramo de atividade invalido ou inconsistente. Ref.Number:" + autEvtExt.ReferenceNumber);
                 ////validacaoE14
-                if (!this.Validacao14(transacao.NumeroLogicoEquipamento))
+                if (!this.Validacao14(transacao.NSUOrigem))
                     AddErroList(idInformacaoRegistro, "E14 - Numero logico do equipamento inconsistente. Ref.Number:" + autEvtExt.ReferenceNumber);
                 ////validacaoE15
                 if (!this.Validacao15(transacao.QtdDiasLiquidacao, transacao.TE))

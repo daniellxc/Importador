@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.SqlServer;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,7 @@ namespace CDT.Importacao.Data.DAL.Classes
             }
         }
 
+       
 
         public List<Arquivo> ListarTodos()
         {
@@ -61,6 +63,11 @@ namespace CDT.Importacao.Data.DAL.Classes
         public List<Arquivo> BuscarPorLayout(int idLayout)
         {
             return _dao.Find(x => x.IdLayout == idLayout).ToList(); 
+        }
+
+        public Arquivo BuscarPorLayout(int idLayout, DateTime dataReferencia)
+        {
+            return _dao.Find(x => x.IdLayout == idLayout && x.DataRegistro == dataReferencia).FirstOrDefault();
         }
 
         public Arquivo Buscar(DateTime dataRegistro)

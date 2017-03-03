@@ -72,6 +72,38 @@ namespace CDT.Importacao.Data.DAL.Classes
                                Cartao = autorizacoes.Cartao,
                                DataAutorizacao = autorizacoes.DataAutorizacao,
                                IdAutorizacao = autorizacoes.IdAutorizacao,
+                               CodigoAutorizacao = autorizacoes.CodigoAutorizacao,
+                               MCC = evt.MCC,
+                               NSUOrigem = autorizacoes.NSUOrigem,
+                               NomeEstabelecimento = evt.NomeEstabelecimento,
+                               NumeroEstabelecimento = autorizacoes.NumeroEstabelecimento,
+                               ReferenceNumber = autorizacoes.ReferenceNumber,
+                               Valor = autorizacoes.Valor
+                           };
+
+            return consulta.ToList();
+
+        }
+
+
+        public List<AutorizacaoEvtExternoCompraNaoProcessado> LocalizaAutorizacaoEventoExternoCompraNaoProcessado(string codigoAutorizacao)
+        {
+
+
+            var consulta = from cartoes in _dao.GetContext().Set<Cartoes>()
+                           join
+                           autorizacoes in _dao.GetContext().Set<Autorizacoes>()
+                           on cartoes.Cartao equals autorizacoes.Cartao
+                           join
+                           evt in _dao.GetContext().Set<EventosExternosComprasNaoProcessados>()
+                           on autorizacoes.IdAutorizacao equals evt.IdAutorizacao
+                           where  autorizacoes.CodigoAutorizacao == codigoAutorizacao
+                           select new AutorizacaoEvtExternoCompraNaoProcessado
+                           {
+                               Cartao = autorizacoes.Cartao,
+                               DataAutorizacao = autorizacoes.DataAutorizacao,
+                               IdAutorizacao = autorizacoes.IdAutorizacao,
+                               CodigoAutorizacao = autorizacoes.CodigoAutorizacao,
                                MCC = evt.MCC,
                                NSUOrigem = autorizacoes.NSUOrigem,
                                NomeEstabelecimento = evt.NomeEstabelecimento,

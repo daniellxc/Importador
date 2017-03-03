@@ -29,6 +29,12 @@ namespace CDT.Importacao.Data.Model
         [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
         public string ClasseImportadora { get; set; }
 
+        [Column("temRetorno")]
+        [Required(ErrorMessage = Constantes.MSG_CAMPO_OBRIGATORIO)]
+        public bool TemRetorno { get; set; }
+
+
+
         public virtual ICollection<Registro> Registros { get; set; }
 
     }

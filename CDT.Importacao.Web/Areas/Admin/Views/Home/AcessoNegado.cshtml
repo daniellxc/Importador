@@ -1,0 +1,9 @@
+﻿@model string
+
+<div style="text-align:center">
+    <h2>Você não possui permissão para acessar este recurso.</h2>
+    <p>@Model</p>
+    @Html.ActionLink("Voltar", "Index", "Home", new { @class = "btn btn-primary" })
+
+</div>
+

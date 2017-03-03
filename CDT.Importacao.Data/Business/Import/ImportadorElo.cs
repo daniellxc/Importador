@@ -226,7 +226,7 @@ namespace CDT.Importacao.Data.Business.Import
                 switch (TipoRegistroTransacao(linha))
                 {
                     case "0":
-                        
+                
                         transacao.Cartao = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO CARTÃO")).PosFim);
                         transacao.CodigoCredenciadora = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO ADQUIRENTE")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DO ADQUIRENTE")).PosFim);
                         transacao.AcquireReferenceNumber = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DE REFERÊNCIA DA TRANSAÇÃO")).PosFim);
@@ -244,7 +244,7 @@ namespace CDT.Importacao.Data.Business.Import
                         transacao.IndicadorMeio = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("INDICADOR DE TRANSAÇÃO POR CORRESPONDÊNCIA/TELEFONE/COMÉRCIO ELETRÔNICO")).PosFim);
                         transacao.NumeroParcelas = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("QUANTIDADE DE PARCELAS DA TRANSAÇÃO")).PosFim));
                         transacao.NumeroEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosFim);
-                        transacao.NumeroLogicoEquipamento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
+                        transacao.NSUOrigem = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
                         transacao.ParcelaPedida = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DA PARCELA")).PosFim));
                         transacao.IdProduto = int.Parse(ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE PRODUTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("CÓDIGO DE PRODUTO")).PosFim));
                         break;
@@ -323,7 +323,7 @@ namespace CDT.Importacao.Data.Business.Import
                                     transacao.NumeroEstabelecimento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO DO EC")).PosFim);
                                     break;
                                 case "2":
-                                    transacao.NumeroLogicoEquipamento = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
+                                    transacao.NSUOrigem = ExtrairInformacao(linha, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosInicio, campos.Find(c => c.NomeCampo.Equals("NÚMERO LÓGICO DO EQUIPAMENTO")).PosFim);
                                     break;
                             }
                             break; 
@@ -367,13 +367,38 @@ namespace CDT.Importacao.Data.Business.Import
                 string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
                 if (tecnologiaTerminal == "05" && (TipoTransacaoLinha(linha) != Constantes.TE06 && TipoTransacaoLinha(linha) != Constantes.TE26))
                     limit = 4;
+
+               
+
                  idTransacao = ExtrairInformacao(linha, 27, 49);
                 string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
                 for (int i = 1; i <= limit; i++)
                 {
 
                     linha = reader.ReadLine();
-                    ValidaRegistrosTransacaoChip(linha, i);
+                    
+                    if (!ValidaRegistrosTransacaoChip(linha, i) ) //&& TipoTransacaoLinha(linha) != "BZ" && linha != null
+                    {
+                        //chegou no trailler. persiste o que tem e retorna (ultima transacao foi chipada incompleta)
+                        if(TipoTransacaoLinha(linha) == "BZ")
+                        {
+                            RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+                            ImportarInformacaoRegisto(registros.Where(r => r.FK_TipoRegistro.NomeTipoRegistro.Equals("Trailer")).First(), arquivo.IdArquivo, StringUtil.Zip(linha), "");
+                            return;
+                        }
+                           
+                        if (TipoRegistroTransacao(linha) == "0")
+                        {
+                            //salva a transacao anterior
+                            RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+                            //trata a transacao incompleta
+                            TratarRegistroE05(registros, arquivo, ref reader, linha);
+                           
+                            return;
+                        }
+                            
+                    }
+
                     linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
 
                 }
@@ -385,15 +410,90 @@ namespace CDT.Importacao.Data.Business.Import
                 throw new Exception("Erro na transacao " + idTransacao + ". " + ex.Message);
             }
          }
-   
 
-      
-        private void ValidaRegistrosTransacaoChip(string linha, int numRegistro)
+        public void TratarRegistroE05ChipIncompleto(List<Registro> registros, Arquivo arquivo, ref StreamReader reader, string linha)
+        {
+            string idTransacao = "";
+            try
+            {
+                int limit = 2;
+                idTransacao = ExtrairInformacao(linha, 27, 49);
+                string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
+                for (int i = 1; i <= limit; i++)
+                {
+
+                    linha = reader.ReadLine();
+
+                    linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
+
+                }
+
+                RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro na transacao " + idTransacao + ". " + ex.Message);
+            }
+
+        }
+
+        public void TratarRegistroE05NewELO(List<Registro> registros, Arquivo arquivo, ref StreamReader reader, string linha)
+        {
+            string idTransacao = "";
+            try
+            {
+                int limit = 2;
+                string tecnologiaTerminal = LAB5Utils.ArquivoUtils.ExtrairInformacao(linha, 159, 160);
+                if (tecnologiaTerminal == "05" && (TipoTransacaoLinha(linha) != Constantes.TE06 && TipoTransacaoLinha(linha) != Constantes.TE26))
+                    limit = 4;
+                idTransacao = ExtrairInformacao(linha, 27, 49);
+                string linhaResult = registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_0")).First().IdRegistro.ToString() + ComporLinha(linha);
+                for (int i = 1; i <= limit; i++)
+                {
+
+                    linha = reader.ReadLine();
+
+                    ValidaRegistrosTransacaoChip(linha, i);
+                
+                    linhaResult += registros.Where(r => r.ChaveRegistro.Equals("REGISTRO_E01_" + TipoRegistroTransacao(linha))).First().IdRegistro.ToString() + ComporLinha(linha);
+
+                }
+
+                RegistrarInformacaoNoBuffer(new InformacaoRegistro { Chave = idTransacao, IdArquivo = arquivo.IdArquivo, Valor = StringUtil.Zip(linhaResult) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro na transacao " + idTransacao + ". " + ex.Message);
+            }
+        }
+
+        private bool ValidaRegistrosTransacaoChip(string linha, int numRegistro)
+        {
+            if (numRegistro == 3)
+            {
+                if (TipoRegistroTransacao(linha) != "5")
+                    return false;
+                return true;
+            }
+
+            else
+            if (numRegistro == 4)
+            {
+                if (TipoRegistroTransacao(linha) != "7")
+                    return false;
+                return true;
+            }
+            return true;
+        }
+
+
+        private bool ValidaRegistrosTransacaoNewElo(string linha, int numRegistro)
         {
             if (numRegistro == 3)
             {
                 if (TipoRegistroTransacao(linha) != "5")
                     throw new Exception("Não foi possível localizar o registro 05.");
+                return true;
             }
                
             else
@@ -401,8 +501,9 @@ namespace CDT.Importacao.Data.Business.Import
             {
                 if (TipoRegistroTransacao(linha) != "7")
                     throw new Exception("Não foi possível localizar o registro 07.");
+                return true;
             }
-                  
+            return true;
         }
 
         public void TratarRegistroE10(List<Registro> registros,Arquivo arquivo, ref StreamReader reader, string linha)
@@ -577,8 +678,8 @@ namespace CDT.Importacao.Data.Business.Import
 
         public bool ValidarTransacao(ref TransacaoElo transacao, int idEmissor, long idInformacaoRegistro)
         {
-            string refNumber = transacao.AcquireReferenceNumber;
-            AutorizacaoEvtExternoCompraNaoProcessado aut = autorizacoesCDT.Find(x => x.ReferenceNumber == refNumber);
+            string codAutorizacao = transacao.CodigoAutorizacao;
+            AutorizacaoEvtExternoCompraNaoProcessado aut = new AutorizacoesDAO(idEmissor).LocalizaAutorizacaoEventoExternoCompraNaoProcessado(codAutorizacao).FirstOrDefault();
             List<ErroValidacaoArquivo> error = new ValidaArquivo(ref transacao).Validar(aut, idInformacaoRegistro);
             if(error.Count > 0)
             {

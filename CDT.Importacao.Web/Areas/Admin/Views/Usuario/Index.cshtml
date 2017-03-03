@@ -1,0 +1,35 @@
+﻿
+@using GridMvc.Html
+@using CDT.Importacao.Data.DAL.Classes
+
+<h2>Controle de Usuários</h2>
+
+@Html.ActionLink("Novo", "Cadastro", "", new { @class = "btn btn-primary" })
+
+@Html.Grid(new UsuarioDAO().ListarTodos().OrderBy(u => u.Nome)).Columns(c =>
+{
+    c.Add(x => x.IdUsuario).Titled("ID");
+    c.Add(x => x.Nome).Titled("Nome");
+    c.Add(x => x.Login).Titled("Login");
+    c.Add().Sanitized(false).Encoded(false).RenderValueAs(x => admin(x.Admin)).Titled("Adminsitrador") ;
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(x => @Html.ActionLink("editar", "Editar", new { id = x.IdUsuario }));
+    c.Add().Encoded(false).Sanitized(false).RenderValueAs(x => @Html.ActionLink("excluir", "Excluir", new { id = x.IdUsuario }, new { @onclick = "return confirm('Deseja realmente excluir?')" }));
+}).EmptyText("Nenhum usuário cadastrado")
+
+
+
+
+
+
+@helper admin(bool admin)
+{
+    if (admin)
+    {
+        <label class="text-success">sim</label>
+    }
+
+    else
+    {
+        <label class="text-danger">não</label>
+    }
+}
