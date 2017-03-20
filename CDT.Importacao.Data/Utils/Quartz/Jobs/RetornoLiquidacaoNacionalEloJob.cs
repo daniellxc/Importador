@@ -27,10 +27,11 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 Layout layout = new LayoutDAO().Buscar("ELO - Liquidação Nacional");
                 if (layout != null)
                 {
+                    //DateTime dataTeste = DateTime.Parse("2017-03-12");
                     JobDataMap jobDataMap = context.JobDetail.JobDataMap;
                     idAgendamento = jobDataMap.GetInt("idAgendamento");
                     string nomeArquivo = "MBRCV.IO.RX.IO36D.M07063CI.RET(+1)"; //MBRCV.IO.RX.IO36D.M07063CI.RET(+1)
-                    Arquivo arquivo = new ArquivoDAO().BuscarPorLayout(layout.IdLayout, DateTime.Now.Date);
+                    Arquivo arquivo = new ArquivoDAO().BuscarPorLayout(layout.IdLayout, DateTime.Now);
                     if (arquivo == null)
                         throw new Exception("Nenhum arquivo encontrado na data informada.");
                     DirectoryInfo di = LAB5Utils.DirectoryUtils.CreateDirectory(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Entrada\Liquidacao_Elo");

@@ -33,7 +33,7 @@ namespace CDT.Importacao.Data.Model
         {
             _context = context;
              
-         contextoConcreto = _context.GetContext();
+         contextoConcreto = (DbContext)_context;
                
         }
 

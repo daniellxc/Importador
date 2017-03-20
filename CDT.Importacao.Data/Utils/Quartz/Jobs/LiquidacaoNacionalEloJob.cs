@@ -28,14 +28,15 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
             bool sucesso = false;
             try
             {
+                //DateTime dataTeste = DateTime.Parse("2017-03-12");
                 JobDataMap jobDataMap = context.JobDetail.JobDataMap;
                 idAgendamento = jobDataMap.GetInt("idAgendamento");
                 arquivo = new Arquivo();
                 arquivoBO = new ArquivoBO(arquivo);
-                string nomeArquivoNaElo = LocalizaNomeArquivoElo(DateTime.Now);
+                string nomeArquivoNaElo = LocalizaNomeArquivoElo(DateTime.Now); //datetime.nom
                 if (nomeArquivoNaElo == "")
                     throw new Exception("Nenhum arquivo recepcionado com o nome especificado.");
-                if ((arquivo = arquivoDAO.Buscar(DateTime.Now.Date)) == null)
+                if ((arquivo = arquivoDAO.BuscarPorLayout(1,DateTime.Now)) == null) //dateTime.now.date
                 {
                     int idEmissor = new EmissorDAO().Buscar("CBSS").IdEmissor;
                     arquivo = arquivoBO.GerarArquivo(1, idEmissor, nomeArquivoNaElo);

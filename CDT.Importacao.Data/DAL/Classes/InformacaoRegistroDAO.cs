@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using PagedList;
 using System.Linq.Expressions;
 using EntityFramework.Extensions;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace CDT.Importacao.Data.DAL.Classes
 {
@@ -128,25 +130,66 @@ namespace CDT.Importacao.Data.DAL.Classes
 
         public List<InformacaoRegistro> ListarRegistrosRejeitados(int idArquivo)
         {
-            var query = from info in _dao.GetContext().Set<InformacaoRegistro>().ToList()
-                        from negadas in _dao.GetContext().Set<ErroValidacaoArquivo>().ToList()
-                        .Where(x=>x.IdInformacaoRegistro == info.IdInformacaoRegistro)
-                        .OrderBy(x=>x.IdErroValidacaoArquivo)
-                        .Take(1)
-                        where info.IdArquivo == idArquivo  
-                        select new InformacaoRegistro
+            var context = _dao.GetContext();
+            
+                List<InformacaoRegistro> retorno = null;
+
+                SqlConnection con = new SqlConnection(context.Database.Connection.ConnectionString);
+                con.Open();
+                string strCmd = "select  a.IdInformacaoRegistro, a.IdRegistro,a.IdArquivo,a.Chave,a.Valor,a.FlagErro, c.Erro  from informacaoRegistro A              " +
+                                 "cross apply                                                " +
+                                 "(                                                          " +
+                                 "   select top 1 * from erroValidacaoArquivo                " +
+                                 "   where idInformacaoRegistro = A.idInformacaoRegistro     " +
+                                 ") C                                                        " +
+                                 "where idArquivo = @idArquivo";
+                SqlCommand cmd = new SqlCommand(strCmd, con);
+                cmd.Parameters.Add(new SqlParameter("@idArquivo", idArquivo));
+                SqlDataReader da = cmd.ExecuteReader();
+                // retorno = context.Database.SqlQuery<InformacaoRegistro>(strCmd, new SqlParameter("idArquivo", idArquivo)).ToList();
+
+
+
+                if (da.HasRows)
+                {
+                    retorno = new List<InformacaoRegistro>();
+                    while (da.Read())
+                    {
+                        retorno.Add(new InformacaoRegistro()
                         {
-                            Erro = negadas.erro.Substring(0, 3),
-                            FlagErro = info.FlagErro,
-                            IdArquivo = info.IdArquivo,
-                            Chave = info.Chave,
-                            IdInformacaoRegistro = info.IdInformacaoRegistro,
-                            Valor = info.Valor,
-                            IdRegistro = info.IdRegistro
+                            Chave = da["Chave"].ToString(),
+                            Erro = da["erro"].ToString().Substring(0, 3),
+                            FlagErro = (bool)da["flagErro"],
+                            IdArquivo = (Int32)da["idArquivo"],
+                            IdInformacaoRegistro = (long)da["idInformacaoRegistro"],
+                            IdRegistro = (int)da["idRegistro"],
+                            Valor = (byte[])da["Valor"]
+                        });
+                    }
+                }
+                con.Close();
+                return retorno;
+            
 
-                        };
+            //var query = from info in _dao.GetContext().Set<InformacaoRegistro>()
+            //            from negadas in _dao.GetContext().Set<ErroValidacaoArquivo>()
+            //            .Where(x => x.IdInformacaoRegistro == info.IdInformacaoRegistro)
+            //            .OrderBy(x => x.IdErroValidacaoArquivo)
+            //            .Take(1)
+            //            where info.IdArquivo == idArquivo
+            //            select new InformacaoRegistro
+            //            {
+            //                Erro = negadas.erro.Substring(0, 3),
+            //                FlagErro = info.FlagErro,
+            //                IdArquivo = info.IdArquivo,
+            //                Chave = info.Chave,
+            //                IdInformacaoRegistro = info.IdInformacaoRegistro,
+            //                Valor = info.Valor,
+            //                IdRegistro = info.IdRegistro
 
-            return query.ToList();
+            //            };
+
+            //return query.ToList();
         }
 
 

@@ -21,6 +21,7 @@ using System.Data.SqlClient;
 using System.Net;
 using CDT.Importacao.Data.Business.Validation.Elo;
 using System.Globalization;
+using System.Net.Mail;
 
 namespace Testes
 {
@@ -182,26 +183,32 @@ namespace Testes
         public void TestarBulkUpdate()
         {
 
-            // var t = new ImportadorElo().NumeroRemessaEnviada();
+            //cria uma mensagem
+            MailMessage mail = new MailMessage();
 
-            TransacoesEloDAO transacaoDAO = new TransacoesEloDAO(85);
-            //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).OnErro();
+            //define os endereços
+            mail.From = new MailAddress("cartao@conductor.com.br");
+            mail.To.Add("daniellxc@gmail.com");
 
-            //new ArquivoRetornoElo(new ArquivoDAO().Buscar(10)).MontarArquivoRetorno("C:\\arquivos\\Elo","retorno.txt");
+            //define o conteúdo
+            mail.Subject = "Este é um simples ,muito simples email";
+            mail.Body = "Este é o corpo do email";
 
-            decimal teste = Math.Round(transacaoDAO.TransacoesDebito("H.ARQ.OUT.NAC.201702150239.CBSS").Where(t => t.CodigoMoeda == 986).Sum(t => t.Valor), 2);
-            string s = teste.ToString().Remove(teste.ToString().IndexOf(','),1).PadLeft(15,'0');
+            //envia a mensagem
+            SmtpClient smtp = new SmtpClient("smtp-relay");
+            smtp.EnableSsl = false;
+            smtp.Port = 587;
+            smtp.Host = "smtp-relay";
+            smtp.Credentials = new NetworkCredential("daniel.cardoso@conductor.com.br", "cdt@mar2017");
+            smtp.Send(mail);
 
-            //new ImportadorElo().ValidarTransacao(ref transacao, 73);
+        }
 
-            //Agendamento a = new AgendamentoDAO().Buscar(2);
-
-            //new AgendamentoBO().IniciarAgendamento(a);
-
-            //CDTScheduler.NextExecutionTime("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
-
-            //CDTScheduler.DeleteJob("CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob", "grp_CDT.Importacao.Data.Utils.Quartz.Jobs.LiquidacaoNacionalEloJob");
-
+        [TestMethod]
+        public void Teste()
+        {
+            InformacaoRegistroDAO inf = new InformacaoRegistroDAO();
+            var res = inf.ListarRegistrosRejeitados(11054);
         }
 
         #region Arquivo

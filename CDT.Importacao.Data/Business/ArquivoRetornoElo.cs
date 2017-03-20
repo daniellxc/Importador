@@ -276,6 +276,7 @@ namespace CDT.Importacao.Data.Business
                     ValidarEstruturaArquivo(header, details[0], trailer);
                     sw = new StreamWriter(diretorioDestino + "\\" + nomeArquivo);
                     sw.WriteLine(header);
+                    header = null;
                     //se a remesse for aceita ou parcialmente aceita, escreve o registro TE44 e as transacoes rejeitas
                     if (situacaoRemessa == "A")
                     {
@@ -285,11 +286,11 @@ namespace CDT.Importacao.Data.Business
                     //senao escreve apenas o registro TE44
                     else
                         sw.WriteLine(details[0]);
-
+                    details = null;
                     sw.WriteLine(trailer);
                     sw.Flush();
                     sw.Close();
-
+                    trailer = null;
                     return true;
 
                 }
@@ -364,6 +365,8 @@ namespace CDT.Importacao.Data.Business
            
             return retorno;
         }
+
+   
 
 
         public void OnErro()

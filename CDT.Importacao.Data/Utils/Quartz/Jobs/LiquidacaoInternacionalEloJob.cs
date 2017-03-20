@@ -26,6 +26,7 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
             string message = "";
             try
             {
+                //DateTime dataTeste = DateTime.Parse("2017-03-08");
                 JobDataMap jobDataMap = context.JobDetail.JobDataMap;
                 idAgendamento = jobDataMap.GetInt("idAgendamento");
                 arquivo = new Arquivo();
@@ -33,10 +34,10 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
                 string nomeArquivoNaElo = LocalizaNomeArquivoElo(DateTime.Now);
                 if (nomeArquivoNaElo == "")
                     throw new Exception("Nenhum arquivo recepcionado com o nome especificado.");
-                if ((arquivo = arquivoDAO.Buscar(DateTime.Now.Date)) == null)
+                if ((arquivo = arquivoDAO.BuscarPorLayout(5,DateTime.Now)) == null)
                 {
                     int idEmissor = new EmissorDAO().Buscar("CBSS").IdEmissor;
-                    arquivoBO.GerarArquivo(5, idEmissor,nomeArquivoNaElo);
+                     arquivo = arquivoBO.GerarArquivo(5, idEmissor,nomeArquivoNaElo);
                 }
                 arquivoBO.Arquivo = arquivo;
                 arquivoBO.Importar();
@@ -71,7 +72,7 @@ namespace CDT.Importacao.Data.Utils.Quartz.Jobs
 
         public string LocalizaNomeArquivoElo(DateTime data)
         {
-            string nomeArquivo = "H.ARQ.OUT.NAC." + LAB5Utils.DataUtils.RetornaDataYYYYMMDD(data);
+            string nomeArquivo = "ARQ.B2.INT." + LAB5Utils.DataUtils.RetornaDataYYYYMMDD(data);
 
             return new ArquivoBO(new Arquivo()).BuscarNomeArquivoDiretorio(@"\\10.1.1.139\Arquivos_Clientes\Cielo\Saida", nomeArquivo);
         }
