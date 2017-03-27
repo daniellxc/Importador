@@ -140,14 +140,18 @@ namespace CDT.Importacao.Data.Business
         {
             List<string> retorno = new List<string>();
             List<InformacaoRegistro> registrosRejeitados = infRegDAO.ListarRegistrosRejeitados(arquivo.IdArquivo);
-            foreach(InformacaoRegistro info in registrosRejeitados)
+            if(registrosRejeitados != null)
             {
-                //decompor as linhas dos registros 0,1 e 2
-                retorno.AddRange(QuebrarLinhasEmRegistros(LAB5Utils.StringUtils.Unzip(info.Valor)));
-                //adcionar registro 9
-                retorno.Add(MontarRegistroTE09(info));
-             
+                foreach (InformacaoRegistro info in registrosRejeitados)
+                {
+                    //decompor as linhas dos registros 0,1 e 2
+                    retorno.AddRange(QuebrarLinhasEmRegistros(LAB5Utils.StringUtils.Unzip(info.Valor)));
+                    //adcionar registro 9
+                    retorno.Add(MontarRegistroTE09(info));
+
+                }
             }
+           
             return retorno;
         }
 
@@ -254,18 +258,17 @@ namespace CDT.Importacao.Data.Business
 
         public bool MontarArquivoRetorno(string diretorioDestino,string nomeArquivo)
         {
-            //if (PodeGerar())
-            //{
+           
                 StreamWriter sw;
                 string header, trailer;
                 List<string> details;
-              
+
                 if (!Directory.Exists(diretorioDestino))
                 {
                     throw new Exception("O Diretório de destino do arquivo não existe");
                 }
-                
-                
+
+
 
                 try
                 {
@@ -279,10 +282,10 @@ namespace CDT.Importacao.Data.Business
                     header = null;
                     //se a remesse for aceita ou parcialmente aceita, escreve o registro TE44 e as transacoes rejeitas
                     if (situacaoRemessa == "A")
-                    {
-                        foreach (string str in details)
-                            sw.WriteLine(str);
-                    }
+                        {
+                            foreach (string str in details)
+                                sw.WriteLine(str);
+                        }
                     //senao escreve apenas o registro TE44
                     else
                         sw.WriteLine(details[0]);
@@ -301,9 +304,7 @@ namespace CDT.Importacao.Data.Business
                 }
 
 
-            //}
-            //else
-            //    throw new Exception("Arquivo não conciliado. O arquivo de retorno não pode ser gerado.");
+    
 
 
         }
